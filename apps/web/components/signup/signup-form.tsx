@@ -1,16 +1,16 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import Link from "next/link"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
-export function LoginForm({
+export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
@@ -18,11 +18,21 @@ export function LoginForm({
     <form className={cn("flex flex-col gap-6", className)} {...props}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">登录你的账户</h1>
+          <h1 className="text-2xl font-bold">创建你的账户</h1>
           <p className="text-sm text-balance text-muted-foreground">
-            请在下方输入邮箱以登录您的账户
+            请填写下方表格以创建您的账户
           </p>
         </div>
+        <Field>
+          <FieldLabel htmlFor="name">用户名</FieldLabel>
+          <Input
+            id="name"
+            type="text"
+            placeholder="John Doe"
+            required
+            className="bg-background"
+          />
+        </Field>
         <Field>
           <FieldLabel htmlFor="email">邮箱</FieldLabel>
           <Input
@@ -34,24 +44,29 @@ export function LoginForm({
           />
         </Field>
         <Field>
-          <div className="flex items-center">
-            <FieldLabel htmlFor="password">密码</FieldLabel>
-            {/* <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </a> */}
-          </div>
+          <FieldLabel htmlFor="password">密码</FieldLabel>
           <Input
             id="password"
             type="password"
             required
             className="bg-background"
           />
+          <FieldDescription>
+            必须至少包含8个字符
+          </FieldDescription>
         </Field>
         <Field>
-          <Button type="submit" variant="default">登录</Button>
+          <FieldLabel htmlFor="confirm-password">确认密码</FieldLabel>
+          <Input
+            id="confirm-password"
+            type="password"
+            required
+            className="bg-background"
+          />
+          <FieldDescription>请确认你的密码</FieldDescription>
+        </Field>
+        <Field>
+          <Button type="submit">创建账户</Button>
         </Field>
         {/* <FieldSeparator>Or continue with</FieldSeparator> */}
         <Field>
@@ -62,14 +77,13 @@ export function LoginForm({
                 fill="currentColor"
               />
             </svg>
-            Login with GitHub
+            Sign up with GitHub
           </Button> */}
-          <FieldDescription className="text-center">
-            没有账户？{" "}
-            <Link href="/signup">注册</Link>
+          <FieldDescription className="px-6 text-center">
+            已有账户？ <Link href="/login">登录</Link>
           </FieldDescription>
         </Field>
       </FieldGroup>
     </form>
-  )
+  );
 }
