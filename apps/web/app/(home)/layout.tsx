@@ -1,16 +1,13 @@
-import { Heart } from "lucide-react";
 import Link from "next/link";
+import { Logo } from "@eveheart/web-shared";
 
 export default function Home({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <div className="flex items-center gap-2 font-medium">
-            <Heart className="size-4" fill="pink"/>
-            Eveheart
-          </div>
         </div>
+          <Logo />
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">{children}</div>
         </div>
