@@ -3,7 +3,6 @@ services:
   postgres:
     image: postgres:16
     container_name: dev-postgres
-    restart: always
     ports:
       - "5432:5432"
     environment:
@@ -11,7 +10,4 @@ services:
       POSTGRES_PASSWORD: dev
       POSTGRES_DB: app
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
+      - ./postgres/data:/var/lib/postgresql/data
