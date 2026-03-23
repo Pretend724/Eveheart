@@ -1,21 +1,29 @@
-import { cn } from "@/lib/utils";
+"use client";
+
+import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { type SignupActionState, signupAction } from "@/lib/actions/signup";
 import Link from "next/link";
 
-export function SignupForm({
-  className,
-  ...props
-}: React.ComponentProps<"form">) {
+const initialSignupActionState: SignupActionState = {
+  error: "",
+};
+
+export function SignupForm() {
+  const [state, formAction, isPending] = useActionState(
+    signupAction,
+    initialSignupActionState,
+  );
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form className="flex flex-col gap-6" action={formAction}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">创建你的账户</h1>
@@ -27,6 +35,7 @@ export function SignupForm({
           <FieldLabel htmlFor="name">用户名</FieldLabel>
           <Input
             id="name"
+            name="name"
             type="text"
             placeholder="John Doe"
             required
@@ -37,6 +46,7 @@ export function SignupForm({
           <FieldLabel htmlFor="email">邮箱</FieldLabel>
           <Input
             id="email"
+            name="email"
             type="email"
             placeholder="m@example.com"
             required
@@ -47,26 +57,35 @@ export function SignupForm({
           <FieldLabel htmlFor="password">密码</FieldLabel>
           <Input
             id="password"
+            name="password"
             type="password"
             required
             className="bg-background"
           />
-          <FieldDescription>
-            必须至少包含8个字符
-          </FieldDescription>
+          <FieldDescription>必须至少包含6个字符</FieldDescription>
         </Field>
         <Field>
           <FieldLabel htmlFor="confirm-password">确认密码</FieldLabel>
           <Input
             id="confirm-password"
+            name="confirmPassword"
             type="password"
             required
             className="bg-background"
           />
           <FieldDescription>请确认你的密码</FieldDescription>
         </Field>
+        {state.error ? (
+          <Field>
+            <FieldDescription className="text-destructive">
+              {state.error}
+            </FieldDescription>
+          </Field>
+        ) : null}
         <Field>
-          <Button type="submit">创建账户</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "创建中..." : "创建账户"}
+          </Button>
         </Field>
         {/* <FieldSeparator>Or continue with</FieldSeparator> */}
         <Field>
