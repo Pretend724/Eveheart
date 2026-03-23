@@ -1,8 +1,5 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { redirect } from "next/navigation";
 
 export default function HomePage() {
-  return (
-    <h1>1</h1>
-  );
+  return redirect("/login");
 }

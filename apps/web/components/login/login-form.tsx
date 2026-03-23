@@ -1,21 +1,57 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import Link from "next/link"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+    setIsSubmitting(true);
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    setIsSubmitting(false);
+
+    if (result?.error) {
+      setError("邮箱或密码错误");
+      return;
+    }
+
+    router.push("/dashboard");
+    router.refresh();
+  };
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      onSubmit={handleSubmit}
+      {...props}
+    >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="text-2xl font-bold">登录你的账户</h1>
@@ -27,10 +63,13 @@ export function LoginForm({
           <FieldLabel htmlFor="email">邮箱</FieldLabel>
           <Input
             id="email"
+            name="email"
             type="email"
             placeholder="m@example.com"
             required
             className="bg-background"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
           />
         </Field>
         <Field>
@@ -45,13 +84,25 @@ export function LoginForm({
           </div>
           <Input
             id="password"
+            name="password"
             type="password"
             required
             className="bg-background"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
           />
         </Field>
+        {error ? (
+          <Field>
+            <FieldDescription className="text-destructive">
+              {error}
+            </FieldDescription>
+          </Field>
+        ) : null}
         <Field>
-          <Button type="submit" variant="default">登录</Button>
+          <Button type="submit" variant="default" disabled={isSubmitting}>
+            {isSubmitting ? "登录中..." : "登录"}
+          </Button>
         </Field>
         {/* <FieldSeparator>Or continue with</FieldSeparator> */}
         <Field>
@@ -65,11 +116,10 @@ export function LoginForm({
             Login with GitHub
           </Button> */}
           <FieldDescription className="text-center">
-            没有账户？{" "}
-            <Link href="/signup">注册</Link>
+            没有账户？ <Link href="/signup">注册</Link>
           </FieldDescription>
         </Field>
       </FieldGroup>
     </form>
-  )
+  );
 }
