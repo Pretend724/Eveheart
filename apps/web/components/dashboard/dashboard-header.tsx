@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogOut, Settings, User as UserIcon } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { logoutAction } from "@/lib/actions/logout";
 
 interface DashboardHeaderProps {
   user?: User;
@@ -44,9 +44,13 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
                 <Settings className="mr-2 h-4 w-4" />
                 设置
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => signOut()}>
-                <LogOut className="mr-2 h-4 w-4" />
-                退出登录
+              <DropdownMenuItem asChild>
+                <form action={logoutAction}>
+                  <button type="submit" className="flex w-full items-center">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    退出登录
+                  </button>
+                </form>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
