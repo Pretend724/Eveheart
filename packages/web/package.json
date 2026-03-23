@@ -7,13 +7,13 @@
     "lint": "eslint \"**/*.ts*\""
   },
   "dependencies": {
-    "lucide-react": "^0.323.0"
+    "lucide-react": "^0.577.0"
   },
   "peerDependencies": {
-    "react": "^18.2.0"
+    "react": "^19.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
-    "@types/react": "^18.2.48"
+    "typescript": "^5.9.3",
+    "@types/react": "^19.2.14"
   }
 }
