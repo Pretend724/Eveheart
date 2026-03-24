@@ -9,8 +9,8 @@ export function Logo({ className, ...props }: LogoProps) {
       className={`flex items-center justify-center gap-2 font-medium md:justify-start ${className || ""}`}
       {...props}
     >
-      <Heart className="size-4" fill="pink" color="red" />
-      Eveheart
+      <Heart className="size-7" fill="pink" color="red" />
+      <p className="text-2xl">Eveheart</p>
     </div>
   );
 }
