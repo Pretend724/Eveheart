@@ -1,0 +1,158 @@
+"use client";
+
+import * as React from "react";
+import { type User } from "next-auth";
+
+import { NavMain } from "@/components/dashboard/sidebar/nav-main";
+import { NavSecondary } from "@/components/dashboard/sidebar/nav-secondary";
+import { NavUser } from "@/components/dashboard/sidebar/nav-user";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import {
+  ActivityIcon,
+  BookOpenIcon,
+  HomeIcon,
+  MessageSquareHeartIcon,
+  Settings2Icon,
+  LifeBuoyIcon,
+  SendIcon,
+  HeartHandshakeIcon,
+} from "lucide-react";
+import { Logo } from "@eveheart/web-shared";
+
+const data = {
+  navMain: [
+    {
+      title: "控制台首页",
+      url: "/dashboard",
+      icon: <HomeIcon />,
+      items: [
+        {
+          title: "总览",
+          url: "/dashboard",
+        },
+        {
+          title: "会话面板",
+          url: "/dashboard",
+        },
+      ],
+    },
+    {
+      title: "AI陪护",
+      url: "/dashboard",
+      icon: <HeartHandshakeIcon />,
+      isActive: true,
+      items: [
+        {
+          title: "即时对话",
+          url: "/dashboard",
+        },
+        {
+          title: "数字人交互",
+          url: "/dashboard",
+        },
+      ],
+    },
+    {
+      title: "情绪洞察",
+      url: "/dashboard",
+      icon: <MessageSquareHeartIcon />,
+      items: [
+        {
+          title: "情绪识别",
+          url: "/dashboard",
+        },
+        {
+          title: "趋势记录",
+          url: "/dashboard",
+        },
+      ],
+    },
+    {
+      title: "内容与帮助",
+      url: "/",
+      icon: <BookOpenIcon />,
+      items: [
+        {
+          title: "使用指南",
+          url: "/",
+        },
+        {
+          title: "常见问题",
+          url: "/",
+        },
+      ],
+    },
+    {
+      title: "系统设置",
+      url: "/dashboard",
+      icon: <Settings2Icon />,
+      items: [
+        {
+          title: "账户设置",
+          url: "/dashboard",
+        },
+        {
+          title: "偏好配置",
+          url: "/dashboard",
+        },
+      ],
+    },
+  ],
+  navSecondary: [
+    {
+      title: "帮助支持",
+      url: "/",
+      icon: <LifeBuoyIcon />,
+    },
+    {
+      title: "反馈建议",
+      url: "/",
+      icon: <SendIcon />,
+    },
+    {
+      title: "关于 Eveheart",
+      url: "/",
+      icon: <ActivityIcon />,
+    },
+  ],
+};
+
+export function AppSidebar({
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { user?: User }) {
+  const navUser = {
+    name: user?.name || "Eveheart 用户",
+    email: user?.email || "",
+    avatar: user?.image || "",
+  };
+
+  return (
+    <Sidebar variant="inset" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Logo></Logo>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <NavMain items={data.navMain} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={navUser} />
+      </SidebarFooter>
+    </Sidebar>
+  );
+}
