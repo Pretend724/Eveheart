@@ -7,6 +7,7 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar";
 import { redirect } from "next/navigation";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export const metadata: Metadata = {
   title: "控制台 - Eveheart",
@@ -29,8 +30,9 @@ export default async function DashboardLayout({
       <AppSidebar user={session.user} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
+          <div className="flex w-full items-center justify-between gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
+            <ModeToggle></ModeToggle>
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
