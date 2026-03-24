@@ -13,7 +13,7 @@ export default function DigitalHuman() {
       </CardHeader>
       <CardContent className="flex items-center justify-center h-[500px]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-64 h-64 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+          <div className="w-64 h-64 rounded-full bg-linear-to-br from-blue-400 to-purple-500 flex items-center justify-center">
             <span className="text-8xl">👤</span>
           </div>
           <p className="text-sm text-muted-foreground">
