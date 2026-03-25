@@ -31,7 +31,7 @@ const data = {
   navMain: [
     {
       title: "控制台首页",
-      url: "/dashboard",
+      url: "#",
       icon: <HomeIcon />,
       items: [
         {
@@ -46,7 +46,7 @@ const data = {
     },
     {
       title: "AI陪护",
-      url: "/dashboard",
+      url: "#",
       icon: <HeartHandshakeIcon />,
       isActive: true,
       items: [
@@ -62,7 +62,7 @@ const data = {
     },
     {
       title: "情绪洞察",
-      url: "/dashboard",
+      url: "#",
       icon: <MessageSquareHeartIcon />,
       items: [
         {
@@ -77,7 +77,7 @@ const data = {
     },
     {
       title: "内容与帮助",
-      url: "/",
+      url: "#",
       icon: <BookOpenIcon />,
       items: [
         {
@@ -92,7 +92,7 @@ const data = {
     },
     {
       title: "系统设置",
-      url: "/dashboard",
+      url: "#",
       icon: <Settings2Icon />,
       items: [
         {

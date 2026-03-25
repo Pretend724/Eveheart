@@ -98,17 +98,14 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <form action={logoutAction} className="w-full">
-                <button
-                  type="submit"
-                  className="flex w-full items-center gap-2"
-                >
+            <form action={logoutAction} className="w-full">
+              <DropdownMenuItem asChild>
+                <button type="submit" className="w-full">
                   <LogOutIcon />
                   退出登录
                 </button>
-              </form>
-            </DropdownMenuItem>
+              </DropdownMenuItem>
+            </form>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
