@@ -52,7 +52,7 @@ const data = {
       items: [
         {
           title: "即时对话",
-          url: "/dashboard",
+          url: "/dashboard/chat",
         },
         {
           title: "数字人交互",
