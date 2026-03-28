@@ -6,18 +6,20 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { groq } from "@ai-sdk/groq";
 import { z } from "zod";
 
-const provider = createOpenAICompatible({
+const siliconflow = createOpenAICompatible({
   name: "siliconflow",
   apiKey: process.env.SILICONFLOW_API_KEY,
   baseURL: "https://api.siliconflow.cn/v1/",
   includeUsage: true,
 });
-// const provider2 = createOpenAICompatible({
-//   name: "groq",
-//   apiKey: process.env.GROQ_API_KEY,
-//   baseURL: "https://api.siliconflow.cn/v1/",
-//   includeUsage: true,
-// });
+const xiaomi = createOpenAICompatible({
+  name: "xiaomi",
+  apiKey: process.env.MIMO_API_KEY,
+  baseURL: "https://api.xiaomimimo.com/v1/",
+  includeUsage: true,
+});
+
+export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,10 +36,11 @@ export async function POST(req: NextRequest) {
     //   messages: await convertToModelMessages(messages),
     // });
     const result = streamText({
-      model: groq("openai/gpt-oss-120b"),
+      // model: groq("openai/gpt-oss-120b"),
+      model: xiaomi("mimo-v2-flash"),
       messages: await convertToModelMessages(messages),
       onError({ error }) {
-        console.error(error);
+        console.error("Chat API error:", error);
       },
     });
     // const body = await req.json();
