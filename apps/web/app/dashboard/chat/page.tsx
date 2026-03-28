@@ -62,8 +62,8 @@ const ChatPage = () => {
           {messages.length === 0 ? (
             <ConversationEmptyState
               icon={<MessageSquare className="size-12" />}
-              title="Start a conversation"
-              description="Type a message below to begin chatting"
+              title="找个人聊聊吧"
+              description="在这里，你可以放心倾诉，不必孤单"
             />
           ) : (
             messages.map((message) => (
@@ -127,7 +127,7 @@ const ChatPage = () => {
           <PromptInputBody>
             <PromptInputTextarea
               value={input}
-              placeholder="Say something..."
+              placeholder="发消息..."
               onChange={(e) => setInput(e.currentTarget.value)}
               className="pr-12"
             />
