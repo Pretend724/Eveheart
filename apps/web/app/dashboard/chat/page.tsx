@@ -22,14 +22,31 @@ import {
   PromptInputBody,
   PromptInputFooter,
 } from "@/components/ai-elements/prompt-input";
+import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion";
 import { MessageSquare, RefreshCcwIcon } from "lucide-react";
 import { useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import CopyAction from "@/lib/actions/ai/copy-action";
 
+const suggestionItems = [
+  "我最近心情有点低落，想聊聊",
+  "感觉压力很大，不知道该怎么办",
+  "晚上总是睡不着，有点焦虑",
+];
+
 const ChatPage = () => {
   const [input, setInput] = useState("");
   const { messages, sendMessage, status } = useChat();
+
+  const handleSuggestionClick = (value: string) => {
+    const text = value.trim();
+    if (!text || status === "streaming") {
+      return;
+    }
+
+    sendMessage({ text });
+    setInput("");
+  };
 
   const handleSubmit = (message: PromptInputMessage) => {
     if (message.text.trim()) {
@@ -92,10 +109,20 @@ const ChatPage = () => {
         <ConversationScrollButton />
       </Conversation>
 
-      <div className="shrink-0 border-t p-4">
+      <div className="flex flex-col shrink-0 border-t p-4 md:px-20">
+        <Suggestions className="mb-3">
+          {suggestionItems.map((suggestion) => (
+            <Suggestion
+              key={suggestion}
+              suggestion={suggestion}
+              onClick={handleSuggestionClick}
+              disabled={status === "streaming"}
+            />
+          ))}
+        </Suggestions>
         <PromptInput
           onSubmit={handleSubmit}
-          className="mx-auto w-full md:px-20"
+          className="mx-auto w-full"
         >
           <PromptInputBody>
             <PromptInputTextarea
