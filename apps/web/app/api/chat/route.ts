@@ -1,7 +1,13 @@
-import { streamText, UIMessage, convertToModelMessages } from "ai";
+import {
+  streamText,
+  UIMessage,
+  convertToModelMessages,
+  createIdGenerator,
+} from "ai";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { prisma } from "@eveheart/db";
 
 const xiaomi = createOpenAICompatible({
   name: "xiaomi",
@@ -62,7 +68,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "未授权" }, { status: 401 });
     }
 
-    const { messages }: { messages: UIMessage[] } = await req.json();
+    const {
+      messages,
+      chatSessionId,
+    }: { messages: UIMessage[]; chatSessionId?: string } = await req.json();
+
+    if (!chatSessionId) {
+      return NextResponse.json({ error: "缺少会话 ID" }, { status: 400 });
+    }
+
+    // 若会话不存在则创建，存在则验证归属（update: {} 为空操作）
+    const chatSession = await prisma.chatSession.upsert({
+      where: { id: chatSessionId },
+      create: { id: chatSessionId, userId: session.user.id },
+      update: {},
+    });
+
+    if (chatSession.userId !== session.user.id) {
+      return NextResponse.json({ error: "未授权访问此会话" }, { status: 403 });
+    }
+
+    const currentSessionId = chatSession.id;
 
     const result = streamText({
       model: xiaomi("mimo-v2-flash"),
@@ -73,7 +99,29 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse({
+      originalMessages: messages,
+      // 使用服务端生成的 ID，确保持久化后消息 ID 一致
+      generateMessageId: createIdGenerator({ prefix: "msg", size: 16 }),
+      onFinish: ({ messages: allMessages }) => {
+        // 非阻塞写入：upsert 保证幂等，重复请求不会重复插入
+        Promise.all(
+          allMessages.map((m) =>
+            prisma.message.upsert({
+              where: { id: m.id },
+              create: {
+                id: m.id,
+                chatSessionId: currentSessionId,
+                role: m.role,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                parts: m.parts as any,
+              },
+              update: {},
+            })
+          )
+        ).catch((err) => console.error("消息持久化失败:", err));
+      },
+    });
   } catch (error) {
     console.error("聊天错误:", error);
     return NextResponse.json({ error: "服务器错误" }, { status: 500 });
