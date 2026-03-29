@@ -28,8 +28,6 @@ export type MessageMinAggregateOutputType = {
   id: string | null
   chatSessionId: string | null
   role: string | null
-  content: string | null
-  audioUrl: string | null
   createdAt: Date | null
 }
 
@@ -37,8 +35,6 @@ export type MessageMaxAggregateOutputType = {
   id: string | null
   chatSessionId: string | null
   role: string | null
-  content: string | null
-  audioUrl: string | null
   createdAt: Date | null
 }
 
@@ -46,8 +42,7 @@ export type MessageCountAggregateOutputType = {
   id: number
   chatSessionId: number
   role: number
-  content: number
-  audioUrl: number
+  parts: number
   createdAt: number
   _all: number
 }
@@ -57,8 +52,6 @@ export type MessageMinAggregateInputType = {
   id?: true
   chatSessionId?: true
   role?: true
-  content?: true
-  audioUrl?: true
   createdAt?: true
 }
 
@@ -66,8 +59,6 @@ export type MessageMaxAggregateInputType = {
   id?: true
   chatSessionId?: true
   role?: true
-  content?: true
-  audioUrl?: true
   createdAt?: true
 }
 
@@ -75,8 +66,7 @@ export type MessageCountAggregateInputType = {
   id?: true
   chatSessionId?: true
   role?: true
-  content?: true
-  audioUrl?: true
+  parts?: true
   createdAt?: true
   _all?: true
 }
@@ -157,8 +147,7 @@ export type MessageGroupByOutputType = {
   id: string
   chatSessionId: string
   role: string
-  content: string
-  audioUrl: string | null
+  parts: runtime.JsonValue
   createdAt: Date
   _count: MessageCountAggregateOutputType | null
   _min: MessageMinAggregateOutputType | null
@@ -187,8 +176,7 @@ export type MessageWhereInput = {
   id?: Prisma.StringFilter<"Message"> | string
   chatSessionId?: Prisma.StringFilter<"Message"> | string
   role?: Prisma.StringFilter<"Message"> | string
-  content?: Prisma.StringFilter<"Message"> | string
-  audioUrl?: Prisma.StringNullableFilter<"Message"> | string | null
+  parts?: Prisma.JsonFilter<"Message">
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
   chatSession?: Prisma.XOR<Prisma.ChatSessionScalarRelationFilter, Prisma.ChatSessionWhereInput>
 }
@@ -197,8 +185,7 @@ export type MessageOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   chatSessionId?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  content?: Prisma.SortOrder
-  audioUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  parts?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   chatSession?: Prisma.ChatSessionOrderByWithRelationInput
 }
@@ -210,8 +197,7 @@ export type MessageWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.MessageWhereInput | Prisma.MessageWhereInput[]
   chatSessionId?: Prisma.StringFilter<"Message"> | string
   role?: Prisma.StringFilter<"Message"> | string
-  content?: Prisma.StringFilter<"Message"> | string
-  audioUrl?: Prisma.StringNullableFilter<"Message"> | string | null
+  parts?: Prisma.JsonFilter<"Message">
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
   chatSession?: Prisma.XOR<Prisma.ChatSessionScalarRelationFilter, Prisma.ChatSessionWhereInput>
 }, "id">
@@ -220,8 +206,7 @@ export type MessageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   chatSessionId?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  content?: Prisma.SortOrder
-  audioUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  parts?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.MessageCountOrderByAggregateInput
   _max?: Prisma.MessageMaxOrderByAggregateInput
@@ -235,16 +220,14 @@ export type MessageScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Message"> | string
   chatSessionId?: Prisma.StringWithAggregatesFilter<"Message"> | string
   role?: Prisma.StringWithAggregatesFilter<"Message"> | string
-  content?: Prisma.StringWithAggregatesFilter<"Message"> | string
-  audioUrl?: Prisma.StringNullableWithAggregatesFilter<"Message"> | string | null
+  parts?: Prisma.JsonWithAggregatesFilter<"Message">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Message"> | Date | string
 }
 
 export type MessageCreateInput = {
   id?: string
   role: string
-  content: string
-  audioUrl?: string | null
+  parts: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   chatSession: Prisma.ChatSessionCreateNestedOneWithoutMessagesInput
 }
@@ -253,16 +236,14 @@ export type MessageUncheckedCreateInput = {
   id?: string
   chatSessionId: string
   role: string
-  content: string
-  audioUrl?: string | null
+  parts: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
 export type MessageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
-  audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   chatSession?: Prisma.ChatSessionUpdateOneRequiredWithoutMessagesNestedInput
 }
@@ -271,8 +252,7 @@ export type MessageUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   chatSessionId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
-  audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -280,16 +260,14 @@ export type MessageCreateManyInput = {
   id?: string
   chatSessionId: string
   role: string
-  content: string
-  audioUrl?: string | null
+  parts: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
 export type MessageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
-  audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -297,8 +275,7 @@ export type MessageUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   chatSessionId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
-  audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -316,8 +293,7 @@ export type MessageCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   chatSessionId?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  content?: Prisma.SortOrder
-  audioUrl?: Prisma.SortOrder
+  parts?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -325,8 +301,6 @@ export type MessageMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   chatSessionId?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  content?: Prisma.SortOrder
-  audioUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -334,8 +308,6 @@ export type MessageMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   chatSessionId?: Prisma.SortOrder
   role?: Prisma.SortOrder
-  content?: Prisma.SortOrder
-  audioUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -384,16 +356,14 @@ export type MessageUncheckedUpdateManyWithoutChatSessionNestedInput = {
 export type MessageCreateWithoutChatSessionInput = {
   id?: string
   role: string
-  content: string
-  audioUrl?: string | null
+  parts: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
 export type MessageUncheckedCreateWithoutChatSessionInput = {
   id?: string
   role: string
-  content: string
-  audioUrl?: string | null
+  parts: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
@@ -430,40 +400,35 @@ export type MessageScalarWhereInput = {
   id?: Prisma.StringFilter<"Message"> | string
   chatSessionId?: Prisma.StringFilter<"Message"> | string
   role?: Prisma.StringFilter<"Message"> | string
-  content?: Prisma.StringFilter<"Message"> | string
-  audioUrl?: Prisma.StringNullableFilter<"Message"> | string | null
+  parts?: Prisma.JsonFilter<"Message">
   createdAt?: Prisma.DateTimeFilter<"Message"> | Date | string
 }
 
 export type MessageCreateManyChatSessionInput = {
   id?: string
   role: string
-  content: string
-  audioUrl?: string | null
+  parts: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
 
 export type MessageUpdateWithoutChatSessionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
-  audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MessageUncheckedUpdateWithoutChatSessionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
-  audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MessageUncheckedUpdateManyWithoutChatSessionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
-  audioUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parts?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -473,8 +438,7 @@ export type MessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   chatSessionId?: boolean
   role?: boolean
-  content?: boolean
-  audioUrl?: boolean
+  parts?: boolean
   createdAt?: boolean
   chatSession?: boolean | Prisma.ChatSessionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["message"]>
@@ -483,8 +447,7 @@ export type MessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   chatSessionId?: boolean
   role?: boolean
-  content?: boolean
-  audioUrl?: boolean
+  parts?: boolean
   createdAt?: boolean
   chatSession?: boolean | Prisma.ChatSessionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["message"]>
@@ -493,8 +456,7 @@ export type MessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   chatSessionId?: boolean
   role?: boolean
-  content?: boolean
-  audioUrl?: boolean
+  parts?: boolean
   createdAt?: boolean
   chatSession?: boolean | Prisma.ChatSessionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["message"]>
@@ -503,12 +465,11 @@ export type MessageSelectScalar = {
   id?: boolean
   chatSessionId?: boolean
   role?: boolean
-  content?: boolean
-  audioUrl?: boolean
+  parts?: boolean
   createdAt?: boolean
 }
 
-export type MessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "chatSessionId" | "role" | "content" | "audioUrl" | "createdAt", ExtArgs["result"]["message"]>
+export type MessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "chatSessionId" | "role" | "parts" | "createdAt", ExtArgs["result"]["message"]>
 export type MessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   chatSession?: boolean | Prisma.ChatSessionDefaultArgs<ExtArgs>
 }
@@ -528,8 +489,7 @@ export type $MessagePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     id: string
     chatSessionId: string
     role: string
-    content: string
-    audioUrl: string | null
+    parts: runtime.JsonValue
     createdAt: Date
   }, ExtArgs["result"]["message"]>
   composites: {}
@@ -958,8 +918,7 @@ export interface MessageFieldRefs {
   readonly id: Prisma.FieldRef<"Message", 'String'>
   readonly chatSessionId: Prisma.FieldRef<"Message", 'String'>
   readonly role: Prisma.FieldRef<"Message", 'String'>
-  readonly content: Prisma.FieldRef<"Message", 'String'>
-  readonly audioUrl: Prisma.FieldRef<"Message", 'String'>
+  readonly parts: Prisma.FieldRef<"Message", 'Json'>
   readonly createdAt: Prisma.FieldRef<"Message", 'DateTime'>
 }
     

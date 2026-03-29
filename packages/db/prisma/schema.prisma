@@ -80,8 +80,7 @@ model Message {
     id            String   @id @default(uuid())
     chatSessionId String
     role          String
-    content       String
-    audioUrl      String?
+    parts         Json
     createdAt     DateTime @default(now())
 
     chatSession ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)
