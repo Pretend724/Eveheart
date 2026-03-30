@@ -2,13 +2,22 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UsernameForm } from "@/components/dashboard/account-setting/username-form";
 import { PasswordForm } from "@/components/dashboard/account-setting/password-form";
 import { DataPrivacyActions } from "@/components/dashboard/account-setting/data-privacy-actions";
 import { RetentionPolicyForm } from "@/components/dashboard/account-setting/retention-policy-form";
+import { DeleteAccountAction } from "@/components/dashboard/account-setting/delete-account-action";
+import { TriangleAlert } from "lucide-react";
 
 export default async function AccountSettingPage() {
   const session = await auth();
@@ -135,37 +144,21 @@ export default async function AccountSettingPage() {
         </Card>
 
         {/* Section 4: Account Management Card */}
-        <Card className="border-destructive/20">
-          <CardContent className="p-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <span
-                    className="material-symbols-outlined text-destructive"
-                    data-icon="warning"
-                  >
-                    warning
-                  </span>
-                  <h4 className="font-headline text-xl font-bold text-foreground">
-                    高风险操作
-                  </h4>
-                </div>
-                <p className="text-muted-foreground text-sm max-w-xl">
-                  删除账号为永久操作。你的情绪模式、对话历史与洞察数据将从
-                  Eveheart 安全服务器中立即清除，且无法恢复。
-                </p>
-              </div>
-              <div className="flex gap-4 w-full md:w-auto">
-                <Button
-                  variant="destructive"
-                  className="flex-1 md:flex-none px-6 py-3 h-auto font-bold"
-                >
-                  删除账号
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <Item variant="muted">
+          <ItemMedia variant="icon">
+            <TriangleAlert className="text-destructive" />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>高风险操作</ItemTitle>
+            <ItemDescription>
+              删除账号为永久操作。你的情绪模式、对话历史与洞察数据将从 Eveheart
+              安全服务器中立即清除，且无法恢复。
+            </ItemDescription>
+          </ItemContent>
+          <ItemActions>
+            <DeleteAccountAction />
+          </ItemActions>
+        </Item>
       </div>
     </main>
   );

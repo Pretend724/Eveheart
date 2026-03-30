@@ -3,7 +3,7 @@
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { auth } from "@/lib/auth";
+import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const UpdateUsernameSchema = z.object({
@@ -52,6 +52,10 @@ const RetentionPolicySchema = z.object({
 export type UpdateRetentionPolicyActionState = {
   error: string;
   success: string;
+};
+
+export type DeleteAccountActionState = {
+  error: string;
 };
 
 const retentionPolicyLabelMap = {
@@ -228,4 +232,34 @@ export async function updateRetentionPolicyAction(
     error: "",
     success: `数据保留策略已更新为「${retentionPolicyLabelMap[retentionPolicy]}」`,
   };
+}
+
+export async function deleteAccountAction(
+  _prevState: DeleteAccountActionState,
+): Promise<DeleteAccountActionState> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return { error: "请先登录" };
+  }
+
+  const currentUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true },
+  });
+
+  if (!currentUser) {
+    return { error: "账号不存在或已注销" };
+  }
+
+  await prisma.user.delete({
+    where: { id: session.user.id },
+  });
+
+  revalidatePath("/dashboard", "layout");
+  revalidatePath("/dashboard/setting/account-setting");
+
+  await signOut({ redirectTo: "/login" });
+
+  return { error: "" };
 }
