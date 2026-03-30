@@ -974,6 +974,7 @@ export const UserScalarFieldEnum = {
   emailVerified: 'emailVerified',
   password: 'password',
   image: 'image',
+  retentionPolicy: 'retentionPolicy',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1123,6 +1124,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'RetentionPolicy'
+ */
+export type EnumRetentionPolicyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RetentionPolicy'>
+    
+
+
+/**
+ * Reference to a field of type 'RetentionPolicy[]'
+ */
+export type ListEnumRetentionPolicyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RetentionPolicy[]'>
     
 
 

@@ -55,6 +55,13 @@ export type DateTimeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
 }
 
+export type EnumRetentionPolicyFilter<$PrismaModel = never> = {
+  equals?: $Enums.RetentionPolicy | Prisma.EnumRetentionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.RetentionPolicy[] | Prisma.ListEnumRetentionPolicyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RetentionPolicy[] | Prisma.ListEnumRetentionPolicyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRetentionPolicyFilter<$PrismaModel> | $Enums.RetentionPolicy
+}
+
 export type DateTimeFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel>
@@ -119,6 +126,16 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type EnumRetentionPolicyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RetentionPolicy | Prisma.EnumRetentionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.RetentionPolicy[] | Prisma.ListEnumRetentionPolicyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RetentionPolicy[] | Prisma.ListEnumRetentionPolicyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRetentionPolicyWithAggregatesFilter<$PrismaModel> | $Enums.RetentionPolicy
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRetentionPolicyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRetentionPolicyFilter<$PrismaModel>
 }
 
 export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -279,6 +296,13 @@ export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
 }
 
+export type NestedEnumRetentionPolicyFilter<$PrismaModel = never> = {
+  equals?: $Enums.RetentionPolicy | Prisma.EnumRetentionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.RetentionPolicy[] | Prisma.ListEnumRetentionPolicyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RetentionPolicy[] | Prisma.ListEnumRetentionPolicyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRetentionPolicyFilter<$PrismaModel> | $Enums.RetentionPolicy
+}
+
 export type NestedDateTimeFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel>
@@ -358,6 +382,16 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumRetentionPolicyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RetentionPolicy | Prisma.EnumRetentionPolicyFieldRefInput<$PrismaModel>
+  in?: $Enums.RetentionPolicy[] | Prisma.ListEnumRetentionPolicyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RetentionPolicy[] | Prisma.ListEnumRetentionPolicyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRetentionPolicyWithAggregatesFilter<$PrismaModel> | $Enums.RetentionPolicy
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRetentionPolicyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRetentionPolicyFilter<$PrismaModel>
 }
 
 export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {

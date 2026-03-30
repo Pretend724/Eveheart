@@ -9,7 +9,11 @@
 * 🟢 You can import this file directly.
 */
 
+export const RetentionPolicy = {
+  ONE_YEAR: 'ONE_YEAR',
+  SIX_MONTHS: 'SIX_MONTHS',
+  THIRTY_DAYS: 'THIRTY_DAYS',
+  MANUAL_ONLY: 'MANUAL_ONLY'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type RetentionPolicy = (typeof RetentionPolicy)[keyof typeof RetentionPolicy]

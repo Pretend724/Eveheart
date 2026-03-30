@@ -13,15 +13,23 @@ datasource db {
     provider = "postgresql"
 }
 
+enum RetentionPolicy {
+    ONE_YEAR
+    SIX_MONTHS
+    THIRTY_DAYS
+    MANUAL_ONLY
+}
+
 model User {
-    id            String    @id @default(uuid())
-    name          String?
-    email         String    @unique
-    emailVerified DateTime?
-    password      String?
-    image         String?
-    createdAt     DateTime  @default(now())
-    updatedAt     DateTime  @updatedAt
+    id              String          @id @default(uuid())
+    name            String?
+    email           String          @unique
+    emailVerified   DateTime?
+    password        String?
+    image           String?
+    retentionPolicy RetentionPolicy @default(ONE_YEAR)
+    createdAt       DateTime        @default(now())
+    updatedAt       DateTime        @updatedAt
 
     accounts Account[]
     sessions Session[]
