@@ -97,7 +97,7 @@ const data = {
       items: [
         {
           title: "账户设置",
-          url: "/dashboard",
+          url: "/dashboard/setting/account-setting",
         },
         {
           title: "偏好配置",
