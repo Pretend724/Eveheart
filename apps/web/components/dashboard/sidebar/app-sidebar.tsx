@@ -24,26 +24,23 @@ import {
   LifeBuoyIcon,
   SendIcon,
   HeartHandshakeIcon,
+  Database,
 } from "lucide-react";
 import { Logo } from "@eveheart/web-shared";
 
 const data = {
   navMain: [
-    {
-      title: "控制台首页",
-      url: "#",
-      icon: <HomeIcon />,
-      items: [
-        {
-          title: "总览",
-          url: "/dashboard",
-        },
-        {
-          title: "会话面板",
-          url: "/dashboard",
-        },
-      ],
-    },
+    // {
+    //   title: "控制台总览",
+    //   url: "#",
+    //   icon: <HomeIcon />,
+    //   items: [
+    //     {
+    //       title: "首页",
+    //       url: "/dashboard",
+    //     },
+    //   ],
+    // },
     {
       title: "AI陪护",
       url: "#",
@@ -56,9 +53,14 @@ const data = {
         },
         {
           title: "数字人交互",
-          url: "/dashboard",
+          url: "/dashboard/chat/AI-avatar",
         },
       ],
+    },
+    {
+      title: "知识库",
+      url: "/dashboard/knowledge-base",
+      icon: <Database />,
     },
     {
       title: "情绪洞察",
@@ -67,11 +69,7 @@ const data = {
       items: [
         {
           title: "情绪识别",
-          url: "/dashboard",
-        },
-        {
-          title: "趋势记录",
-          url: "/dashboard",
+          url: "/dashboard/emotion/emotion-insight",
         },
       ],
     },
@@ -82,11 +80,11 @@ const data = {
       items: [
         {
           title: "使用指南",
-          url: "/",
+          url: "/dashboard/help/guide",
         },
         {
           title: "常见问题",
-          url: "/",
+          url: "/dashboard/help/FAQ",
         },
       ],
     },
@@ -101,7 +99,7 @@ const data = {
         },
         {
           title: "偏好配置",
-          url: "/dashboard",
+          url: "/dashboard/setting/preferences-setting",
         },
       ],
     },
@@ -119,7 +117,7 @@ const data = {
     },
     {
       title: "关于 Eveheart",
-      url: "/",
+      url: "https://github.com/Pretend724/Eveheart",
       icon: <ActivityIcon />,
     },
   ],

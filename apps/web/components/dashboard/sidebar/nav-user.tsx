@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransition } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -24,6 +25,7 @@ import {
   LogOutIcon,
   Settings2Icon,
 } from "lucide-react";
+import Link from "next/link";
 
 export function NavUser({
   user,
@@ -35,6 +37,7 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const [isPending, startTransition] = useTransition();
   const fallback = user.name?.trim()?.slice(0, 1) || "U";
 
   return (
@@ -81,16 +84,11 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheckIcon />
-                账户信息
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Settings2Icon />
-                偏好设置
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/setting/account-setting">
+                  <Settings2Icon />
+                  系统设置
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <BellIcon />
@@ -98,14 +96,18 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <form action={logoutAction} className="w-full">
-              <DropdownMenuItem asChild>
-                <button type="submit" className="w-full">
-                  <LogOutIcon />
-                  退出登录
-                </button>
-              </DropdownMenuItem>
-            </form>
+            <DropdownMenuItem
+              disabled={isPending}
+              onSelect={(event) => {
+                event.preventDefault();
+                startTransition(async () => {
+                  await logoutAction();
+                });
+              }}
+            >
+              <LogOutIcon />
+              {isPending ? "退出中..." : "退出登录"}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

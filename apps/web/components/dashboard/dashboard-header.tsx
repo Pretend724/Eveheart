@@ -1,7 +1,6 @@
 "use client";
 
 import { SidebarTrigger } from "../ui/sidebar";
-import { ModeToggle } from "../mode-toggle";
 import { AnimatedThemeToggler } from "../ui/animated-theme-toggler";
 
 export default function DashboardHeader() {
