@@ -28,7 +28,7 @@ export async function loginAction(
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/dashboard",
+      redirectTo: "/dashboard/chat",
     });
 
     return { error: "" };
