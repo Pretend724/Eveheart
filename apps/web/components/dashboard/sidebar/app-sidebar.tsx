@@ -64,14 +64,8 @@ const data = {
     },
     {
       title: "情绪洞察",
-      url: "#",
+      url: "/dashboard/emotion/emotion-insight",
       icon: <MessageSquareHeartIcon />,
-      items: [
-        {
-          title: "情绪识别",
-          url: "/dashboard/emotion/emotion-insight",
-        },
-      ],
     },
     {
       title: "内容与帮助",
