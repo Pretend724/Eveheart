@@ -199,7 +199,7 @@ export type EmotionLogGroupByOutputType = {
   _max: EmotionLogMaxAggregateOutputType | null
 }
 
-type GetEmotionLogGroupByPayload<T extends EmotionLogGroupByArgs> = Prisma.PrismaPromise<
+export type GetEmotionLogGroupByPayload<T extends EmotionLogGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<EmotionLogGroupByOutputType, T['by']> &
       {

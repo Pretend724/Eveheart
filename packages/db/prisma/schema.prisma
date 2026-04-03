@@ -31,9 +31,10 @@ model User {
     createdAt       DateTime        @default(now())
     updatedAt       DateTime        @updatedAt
 
-    accounts Account[]
-    sessions Session[]
-    chats    ChatSession[]
+    accounts    Account[]
+    sessions    Session[]
+    chats       ChatSession[]
+    preferences UserPreferences?
 }
 
 model Account {
@@ -92,6 +93,53 @@ model Message {
     createdAt     DateTime @default(now())
 
     chatSession ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)
+}
+
+model UserPreferences {
+    id            String  @id @default(uuid())
+    userId        String  @unique
+
+    // ── AI Provider ──────────────────────────────────────────────────────────
+    /// Identifier of the AI service provider.
+    /// Values: "xiaomi" | "openai" | "deepseek" | "custom"
+    aiProvider    String  @default("xiaomi")
+    /// Model identifier within the chosen provider (e.g. "gpt-4o", "deepseek-chat").
+    aiModel       String  @default("mimo-v2-flash")
+    /// Encrypted user-supplied API key (null for built-in providers).
+    aiApiKey      String?
+    /// Base URL for OpenAI-compatible custom providers.
+    aiBaseUrl     String?
+
+    // ── Chat Experience ───────────────────────────────────────────────────────
+    /// The name Eveheart uses to refer to itself in conversation.
+    personaName   String  @default("Eveheart")
+    /// BCP-47 language tag for AI reply language. "auto" follows user input.
+    replyLanguage String  @default("zh-CN")
+    /// Whether the text-to-speech voice feature is enabled.
+    voiceEnabled  Boolean @default(true)
+    /// Voice playback speed. Values: "slow" | "normal" | "fast"
+    voiceSpeed    String  @default("normal")
+
+    // ── Display & Accessibility ───────────────────────────────────────────────
+    /// Interface font size preset. Values: "standard" | "large" | "xl" | "xxl"
+    fontSize      String  @default("standard")
+    /// Enables elderly-friendly mode (forces xxl font + simplified UI).
+    elderlyMode   Boolean @default(false)
+    /// Enables high-contrast display for visually impaired users.
+    highContrast  Boolean @default(false)
+
+    // ── Notifications ─────────────────────────────────────────────────────────
+    /// Whether periodic emotion check-in reminders are active.
+    reminderEnabled Boolean @default(false)
+    /// Local time for daily reminder in HH:MM format (e.g. "20:00").
+    reminderTime    String  @default("20:00")
+    /// Reminder recurrence. Values: "daily" | "weekdays" | "weekly"
+    reminderFreq    String  @default("daily")
+
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model EmotionLog {

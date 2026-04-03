@@ -57,6 +57,7 @@ export const ModelName = {
   VerificationToken: 'VerificationToken',
   ChatSession: 'ChatSession',
   Message: 'Message',
+  UserPreferences: 'UserPreferences',
   EmotionLog: 'EmotionLog'
 } as const
 
@@ -148,6 +149,30 @@ export const MessageScalarFieldEnum = {
 } as const
 
 export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
+
+
+export const UserPreferencesScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  aiProvider: 'aiProvider',
+  aiModel: 'aiModel',
+  aiApiKey: 'aiApiKey',
+  aiBaseUrl: 'aiBaseUrl',
+  personaName: 'personaName',
+  replyLanguage: 'replyLanguage',
+  voiceEnabled: 'voiceEnabled',
+  voiceSpeed: 'voiceSpeed',
+  fontSize: 'fontSize',
+  elderlyMode: 'elderlyMode',
+  highContrast: 'highContrast',
+  reminderEnabled: 'reminderEnabled',
+  reminderTime: 'reminderTime',
+  reminderFreq: 'reminderFreq',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserPreferencesScalarFieldEnum = (typeof UserPreferencesScalarFieldEnum)[keyof typeof UserPreferencesScalarFieldEnum]
 
 
 export const EmotionLogScalarFieldEnum = {

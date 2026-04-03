@@ -70,6 +70,11 @@ export type ChatSession = Prisma.ChatSessionModel
  */
 export type Message = Prisma.MessageModel
 /**
+ * Model UserPreferences
+ * 
+ */
+export type UserPreferences = Prisma.UserPreferencesModel
+/**
  * Model EmotionLog
  * 
  */
