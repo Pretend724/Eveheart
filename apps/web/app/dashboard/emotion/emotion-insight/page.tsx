@@ -28,7 +28,7 @@ export default function Page() {
           深入分析您过去30天内的潜意识模式及情绪波动
         </FieldDescription>
       </Field>
-      <Tabs defaultValue="trend-insights" className="mt-6">
+      <Tabs defaultValue="emotional-insights" className="mt-6">
         <TabsList variant="line">
           <TabsTrigger value="emotional-insights" className="px-10 py-4">
             情绪识别

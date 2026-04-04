@@ -3,18 +3,101 @@ import {
   UIMessage,
   convertToModelMessages,
   createIdGenerator,
+  LanguageModel,
 } from "ai";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { prisma } from "@eveheart/db";
 
-const xiaomi = createOpenAICompatible({
-  name: "xiaomi",
-  apiKey: process.env.MIMO_API_KEY,
-  baseURL: "https://api.xiaomimimo.com/v1/",
+// ─── Built-in Provider (fallback) ─────────────────────────────────────────────
+
+const siliconflow = createOpenAICompatible({
+  name: "siliconflow",
+  apiKey: process.env.SILICONFLOW_API_KEY,
+  baseURL: "https://api.siliconflow.cn/v1/",
   includeUsage: true,
 });
+
+const BUILTIN_MODEL = "Pro/MiniMaxAI/MiniMax-M2.5";
+
+// ─── External Provider Base URLs ──────────────────────────────────────────────
+
+const PROVIDER_BASE_URLS: Record<string, string> = {
+  openai: "https://api.openai.com/v1/",
+  deepseek: "https://api.deepseek.com/v1/",
+};
+
+// ─── Dynamic Model Resolver ───────────────────────────────────────────────────
+
+type ProviderPrefs = {
+  aiProvider: string;
+  aiModel: string;
+  aiApiKey: string | null;
+  aiBaseUrl: string | null;
+};
+
+/**
+ * Creates a LanguageModel instance based on the user's saved preferences.
+ * Falls back to the built-in siliconflow MiMo model when:
+ *  - the provider is "siliconflow" (or not set)
+ *  - an external provider is chosen but the API key is missing
+ *  - the custom provider is chosen but the Base URL is missing
+ *  - any unexpected error occurs during client construction
+ */
+function resolveModel(prefs: ProviderPrefs | null): LanguageModel {
+  try {
+    if (!prefs || prefs.aiProvider === "siliconflow") {
+      return siliconflow(prefs?.aiModel ?? BUILTIN_MODEL);
+    }
+
+    const { aiProvider, aiModel, aiApiKey, aiBaseUrl } = prefs;
+    const apiKey = aiApiKey?.trim();
+
+    // External providers all require an API key
+    if (!apiKey) {
+      console.warn(
+        `[chat] Provider "${aiProvider}" selected but no API key set — falling back to built-in.`,
+      );
+      return siliconflow(BUILTIN_MODEL);
+    }
+
+    // Resolve base URL
+    let baseURL: string;
+    if (aiProvider === "custom") {
+      baseURL = aiBaseUrl?.trim() ?? "";
+      if (!baseURL) {
+        console.warn(
+          "[chat] Custom provider selected but no Base URL set — falling back to built-in.",
+        );
+        return siliconflow(BUILTIN_MODEL);
+      }
+      // Ensure the URL ends with a slash for @ai-sdk/openai-compatible
+      if (!baseURL.endsWith("/")) baseURL += "/";
+    } else {
+      baseURL = PROVIDER_BASE_URLS[aiProvider] ?? "";
+      if (!baseURL) {
+        console.warn(
+          `[chat] Unknown provider "${aiProvider}" — falling back to built-in.`,
+        );
+        return siliconflow(BUILTIN_MODEL);
+      }
+    }
+
+    const client = createOpenAICompatible({
+      name: aiProvider,
+      apiKey,
+      baseURL,
+    });
+
+    return client(aiModel || BUILTIN_MODEL);
+  } catch (err) {
+    console.error("[chat] Error resolving AI model, using built-in:", err);
+    return siliconflow(BUILTIN_MODEL);
+  }
+}
+
+// ─── System Prompt ────────────────────────────────────────────────────────────
 
 const SYSTEM_PROMPT = `\
 你是 Eveheart，一位遵循人本主义理念的情感陪护 AI。你以"来访者中心"为核心，提供非指导性的心理陪伴服务。
@@ -59,15 +142,19 @@ const SYSTEM_PROMPT = `\
 对话内容仅用于本次陪伴服务，不会被泄露或用于其他目的。\
 `;
 
+// ─── Route Handler ────────────────────────────────────────────────────────────
+
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
   try {
+    // ── Auth ─────────────────────────────────────────────────────────────────
     const session = await auth();
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "未授权" }, { status: 401 });
     }
 
+    // ── Parse request ────────────────────────────────────────────────────────
     const {
       messages,
       chatSessionId,
@@ -77,7 +164,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "缺少会话 ID" }, { status: 400 });
     }
 
-    // 若会话不存在则创建，存在则验证归属（update: {} 为空操作）
+    // ── Validate / create ChatSession ────────────────────────────────────────
     const chatSession = await prisma.chatSession.upsert({
       where: { id: chatSessionId },
       create: { id: chatSessionId, userId: session.user.id },
@@ -88,11 +175,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "未授权访问此会话" }, { status: 403 });
     }
 
+    // ── Load user preferences (non-blocking fallback) ─────────────────────────
+    // Uses .catch(() => null) so a missing table (pre-migration) never breaks chat.
+    const userPrefs = await prisma.userPreferences
+      .findUnique({
+        where: { userId: session.user.id },
+        select: {
+          aiProvider: true,
+          aiModel: true,
+          aiApiKey: true,
+          aiBaseUrl: true,
+        },
+      })
+      .catch(() => null);
+
+    // ── Resolve the model dynamically ─────────────────────────────────────────
+    const model = resolveModel(userPrefs);
+
     const currentSessionId = chatSession.id;
 
+    // ── Stream ───────────────────────────────────────────────────────────────
     const result = streamText({
-      model: xiaomi("mimo-v2-flash"),
-      system: SYSTEM_PROMPT,
+      model,
+      // system: SYSTEM_PROMPT,
       messages: await convertToModelMessages(messages),
       onError({ error }) {
         console.error("Chat API error:", error);
@@ -101,10 +206,10 @@ export async function POST(req: NextRequest) {
 
     return result.toUIMessageStreamResponse({
       originalMessages: messages,
-      // 使用服务端生成的 ID，确保持久化后消息 ID 一致
+      // Server-generated IDs ensure persistence idempotency
       generateMessageId: createIdGenerator({ prefix: "msg", size: 16 }),
       onFinish: ({ messages: allMessages }) => {
-        // 非阻塞写入：upsert 保证幂等，重复请求不会重复插入
+        // Non-blocking write; upsert is idempotent on duplicate requests
         Promise.all(
           allMessages.map((m) =>
             prisma.message.upsert({
@@ -117,8 +222,8 @@ export async function POST(req: NextRequest) {
                 parts: m.parts as any,
               },
               update: {},
-            })
-          )
+            }),
+          ),
         ).catch((err) => console.error("消息持久化失败:", err));
       },
     });
