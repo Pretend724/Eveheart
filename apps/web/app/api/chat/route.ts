@@ -9,6 +9,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { prisma } from "@eveheart/db";
+import { findSimilarChunks } from "@eveheart/rag-db";
+import { generateEmbedding } from "@/lib/rag/embedding";
+import { buildRagContext } from "@/lib/rag/context";
 
 // ─── Built-in Provider (fallback) ─────────────────────────────────────────────
 
@@ -192,12 +195,45 @@ export async function POST(req: NextRequest) {
     // ── Resolve the model dynamically ─────────────────────────────────────────
     const model = resolveModel(userPrefs);
 
+    // ── RAG: retrieve relevant knowledge context ────────────────────────────
+    // Embed the latest user message and fetch semantically similar knowledge chunks.
+    // Failures are silently swallowed so RAG unavailability never breaks chat.
+    let ragContextStr = "";
+    try {
+      const lastUserMsg = [...messages]
+        .reverse()
+        .find((m) => m.role === "user");
+
+      if (lastUserMsg) {
+        // Extract text content from UIMessage parts
+        const textContent = lastUserMsg.parts
+          ?.filter((p): p is { type: "text"; text: string } => p.type === "text")
+          .map((p) => p.text)
+          .join(" ")
+          .trim();
+
+        if (textContent) {
+          const queryEmbedding = await generateEmbedding(textContent).catch(() => null);
+          if (queryEmbedding) {
+            const chunks = await findSimilarChunks(queryEmbedding, {
+              limit: 5,
+              minSimilarity: 0.6,
+            }).catch(() => []);
+            ragContextStr = buildRagContext(chunks);
+          }
+        }
+      }
+    } catch (ragErr) {
+      // RAG is enhancement-only; log but never block the main chat flow
+      console.warn("[chat] RAG retrieval skipped:", ragErr);
+    }
+
     const currentSessionId = chatSession.id;
 
     // ── Stream ───────────────────────────────────────────────────────────────
     const result = streamText({
       model,
-      // system: SYSTEM_PROMPT,
+      system: SYSTEM_PROMPT + ragContextStr,
       messages: await convertToModelMessages(messages),
       onError({ error }) {
         console.error("Chat API error:", error);
