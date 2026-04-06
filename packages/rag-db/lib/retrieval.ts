@@ -1,6 +1,7 @@
 import { and, cosineDistance, desc, eq, gt, sql } from "drizzle-orm";
 import { db } from "./db";
 import {
+  EMBEDDING_DIMENSIONS,
   knowledgeChunks,
   knowledgeSources,
   type EmotionCategory,
@@ -8,6 +9,14 @@ import {
   type InsertKnowledgeChunk,
   type InsertKnowledgeSource,
 } from "../drizzle/schema";
+
+function assertEmbeddingDimensions(embedding: number[], context: string) {
+  if (embedding.length !== EMBEDDING_DIMENSIONS) {
+    throw new Error(
+      `${context} expects ${EMBEDDING_DIMENSIONS} dimensions, got ${embedding.length}.`,
+    );
+  }
+}
 
 // ─── Return Types ─────────────────────────────────────────────────────────────
 
@@ -49,6 +58,8 @@ export async function findSimilarChunks(
   queryEmbedding: number[],
   options: FindSimilarOptions = {},
 ): Promise<SimilarChunk[]> {
+  assertEmbeddingDimensions(queryEmbedding, "Query embedding");
+
   const { limit = 5, minSimilarity = 0.55, category, riskLevel } = options;
 
   const similarity = sql<number>`1 - (${cosineDistance(
@@ -106,6 +117,14 @@ export async function insertKnowledgeChunks(
   chunks: Omit<InsertKnowledgeChunk, "id" | "createdAt">[],
 ): Promise<string[]> {
   if (chunks.length === 0) return [];
+
+  for (const [index, chunk] of chunks.entries()) {
+    assertEmbeddingDimensions(
+      chunk.embedding,
+      `Chunk embedding at index ${index}`,
+    );
+  }
+
   const results = await db
     .insert(knowledgeChunks)
     .values(chunks)

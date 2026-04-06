@@ -1,6 +1,5 @@
 import {
-  pgTable,
-  pgEnum,
+  pgSchema,
   text,
   varchar,
   integer,
@@ -9,8 +8,11 @@ import {
   timestamp,
   index,
 } from "drizzle-orm/pg-core";
-import { vector } from "drizzle-orm/pg-core";
+import { halfvec } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+
+export const RAG_SCHEMA = "rag";
+export const ragSchema = pgSchema(RAG_SCHEMA);
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -18,7 +20,7 @@ import { relations } from "drizzle-orm";
  * Categorises knowledge entries by their psychological domain.
  * Used for targeted retrieval and UI organisation.
  */
-export const emotionCategoryEnum = pgEnum("emotion_category", [
+export const emotionCategoryEnum = ragSchema.enum("emotion_category", [
   "general_psychology",   // 通用心理健康知识
   "emotion_management",   // 情绪管理技术（CBT、DBT 等）
   "crisis_intervention",  // 危机干预与自杀预防
@@ -40,7 +42,7 @@ export type EmotionCategory = (typeof emotionCategoryEnum.enumValues)[number];
  * moderate → 中度困扰（持续情绪低落、社交退缩）
  * crisis   → 危机状态（自伤念头、极度情绪失控）
  */
-export const riskLevelEnum = pgEnum("risk_level", [
+export const riskLevelEnum = ragSchema.enum("risk_level", [
   "general",
   "mild",
   "moderate",
@@ -51,8 +53,8 @@ export type RiskLevel = (typeof riskLevelEnum.enumValues)[number];
 
 // ─── Dimension Constant ───────────────────────────────────────────────────────
 
-/** Embedding dimension for OpenAI text-embedding-3-small (default). */
-export const EMBEDDING_DIMENSIONS = 1536;
+/** Embedding dimension expected by the active embedding model and pgvector schema. */
+export const EMBEDDING_DIMENSIONS = 1024;
 
 // ─── knowledge_sources ────────────────────────────────────────────────────────
 
@@ -60,7 +62,7 @@ export const EMBEDDING_DIMENSIONS = 1536;
  * Represents a complete knowledge document (book chapter, guideline, article).
  * Each source is chunked into knowledgeChunks for vector storage.
  */
-export const knowledgeSources = pgTable("knowledge_sources", {
+export const knowledgeSources = ragSchema.table("knowledge_sources", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: text("title").notNull(),
   description: text("description"),
@@ -90,7 +92,7 @@ export const knowledgeSources = pgTable("knowledge_sources", {
  * The HNSW index provides sub-linear approximate nearest-neighbour search,
  * which is essential for low-latency retrieval during chat.
  */
-export const knowledgeChunks = pgTable(
+export const knowledgeChunks = ragSchema.table(
   "knowledge_chunks",
   {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -114,8 +116,8 @@ export const knowledgeChunks = pgTable(
       .notNull()
       .default("general"),
 
-    /** pgvector embedding (dimensions must match EMBEDDING_DIMENSIONS) */
-    embedding: vector("embedding", { dimensions: EMBEDDING_DIMENSIONS }).notNull(),
+    /** halfvec keeps HNSW indexing available for 1024-dimensional embeddings. */
+    embedding: halfvec("embedding", { dimensions: EMBEDDING_DIMENSIONS }).notNull(),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -123,7 +125,7 @@ export const knowledgeChunks = pgTable(
     // HNSW index for fast approximate nearest-neighbour search
     index("knowledge_chunks_embedding_hnsw_idx").using(
       "hnsw",
-      table.embedding.op("vector_cosine_ops"),
+      table.embedding.op("halfvec_cosine_ops"),
     ),
     // B-tree index for source-based filtering
     index("knowledge_chunks_source_id_idx").on(table.sourceId),
