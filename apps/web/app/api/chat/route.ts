@@ -233,7 +233,7 @@ export async function POST(req: NextRequest) {
     // ── Stream ───────────────────────────────────────────────────────────────
     const result = streamText({
       model,
-      system: SYSTEM_PROMPT + ragContextStr,
+      // system: SYSTEM_PROMPT + ragContextStr,
       messages: await convertToModelMessages(messages),
       onError({ error }) {
         console.error("Chat API error:", error);

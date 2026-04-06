@@ -61,7 +61,7 @@ export async function signupAction(
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/dashboard",
+      redirectTo: "/dashboard/chat",
     });
 
     return { error: "" };
