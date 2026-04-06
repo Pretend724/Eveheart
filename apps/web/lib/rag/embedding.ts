@@ -1,5 +1,8 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { embed, embedMany } from "ai";
+import { EMBEDDING_DIMENSIONS } from "@eveheart/rag-db";
+
+const EMBEDDING_PROVIDER_NAME = "embedding-provider";
 
 // ─── Embedding Model Factory ──────────────────────────────────────────────────
 
@@ -8,31 +11,56 @@ import { embed, embedMany } from "ai";
  *
  * Required env vars:
  *   EMBEDDING_API_KEY   – API key for the embedding provider (falls back to OPENAI_API_KEY)
+ *   EMBEDDING_MODEL     – Model ID for the active 1024-dimensional embedding model
  *
  * Optional env vars:
  *   EMBEDDING_BASE_URL  – Base URL (default: OpenAI; any OpenAI-compatible endpoint works)
- *   EMBEDDING_MODEL     – Model ID (default: text-embedding-3-small)
  *
  * Returns null when no API key is configured → RAG silently disabled.
  */
 function getEmbeddingModel() {
   const apiKey =
-    process.env.EMBEDDING_API_KEY || process.env.OPENAI_API_KEY;
+    process.env.EMBEDDING_API_KEY || process.env.SILICONFLOW_API_KEY;
 
   if (!apiKey) return null;
 
   const rawBaseUrl =
-    process.env.EMBEDDING_BASE_URL || "https://api.openai.com/v1/";
+    process.env.EMBEDDING_BASE_URL || "https://api.siliconflow.cn/v1/";
   const baseURL = rawBaseUrl.endsWith("/") ? rawBaseUrl : rawBaseUrl + "/";
-  const modelId = process.env.EMBEDDING_MODEL || "text-embedding-3-small";
+  const modelId = process.env.EMBEDDING_MODEL?.trim();
+
+  if (!modelId) {
+    throw new Error(
+      `EMBEDDING_MODEL must be set to the ${EMBEDDING_DIMENSIONS}-dimensional embedding model.`,
+    );
+  }
 
   const client = createOpenAICompatible({
-    name: "embedding-provider",
+    name: EMBEDDING_PROVIDER_NAME,
     apiKey,
     baseURL,
   });
 
-  return client.textEmbeddingModel(modelId);
+  return {
+    model: client.textEmbeddingModel(modelId),
+    modelId,
+  };
+}
+
+function getEmbeddingProviderOptions() {
+  return {
+    [EMBEDDING_PROVIDER_NAME]: {
+      dimensions: EMBEDDING_DIMENSIONS,
+    },
+  };
+}
+
+function assertEmbeddingDimensions(embedding: number[], modelId: string) {
+  if (embedding.length !== EMBEDDING_DIMENSIONS) {
+    throw new Error(
+      `Embedding model "${modelId}" returned ${embedding.length} dimensions, expected ${EMBEDDING_DIMENSIONS}.`,
+    );
+  }
 }
 
 // ─── Text Chunking ────────────────────────────────────────────────────────────
@@ -50,7 +78,7 @@ function getEmbeddingModel() {
  * @param text           – Source material to chunk
  * @param maxChunkLength – Soft upper bound per chunk in characters (default 500)
  */
-export function chunkText(text: string, maxChunkLength = 500): string[] {
+export function generateChunks(text: string, maxChunkLength = 500): string[] {
   return text
     .trim()
     .split(/(?<=[。！？.!?])\s+|\n\n+/)
@@ -63,6 +91,8 @@ export function chunkText(text: string, maxChunkLength = 500): string[] {
     .filter((c) => c.length > 0);
 }
 
+export const chunkText = generateChunks;
+
 // ─── Public Embedding API ─────────────────────────────────────────────────────
 
 /**
@@ -73,13 +103,16 @@ export function chunkText(text: string, maxChunkLength = 500): string[] {
 export async function generateEmbedding(
   text: string,
 ): Promise<number[] | null> {
-  const model = getEmbeddingModel();
-  if (!model) return null;
+  const modelConfig = getEmbeddingModel();
+  if (!modelConfig) return null;
 
   const { embedding } = await embed({
-    model,
+    model: modelConfig.model,
     value: text.replaceAll("\n", " "),
+    providerOptions: getEmbeddingProviderOptions(),
   });
+
+  assertEmbeddingDimensions(embedding, modelConfig.modelId);
   return embedding;
 }
 
@@ -90,15 +123,21 @@ export async function generateEmbedding(
  *          or null when no embedding key is configured.
  */
 export async function generateEmbeddings(
-  texts: string[],
+  value: string | string[],
 ): Promise<Array<{ content: string; embedding: number[] }> | null> {
-  const model = getEmbeddingModel();
-  if (!model || texts.length === 0) return null;
+  const chunks = Array.isArray(value) ? value : generateChunks(value);
+  const modelConfig = getEmbeddingModel();
+  if (!modelConfig || chunks.length === 0) return null;
 
   const { embeddings } = await embedMany({
-    model,
-    values: texts.map((t) => t.replaceAll("\n", " ")),
+    model: modelConfig.model,
+    values: chunks.map((chunk) => chunk.replaceAll("\n", " ")),
+    providerOptions: getEmbeddingProviderOptions(),
   });
 
-  return texts.map((content, i) => ({ content, embedding: embeddings[i] }));
+  for (const embedding of embeddings) {
+    assertEmbeddingDimensions(embedding, modelConfig.modelId);
+  }
+
+  return chunks.map((content, i) => ({ content, embedding: embeddings[i] }));
 }
