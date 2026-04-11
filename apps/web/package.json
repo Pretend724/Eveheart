@@ -18,7 +18,7 @@
     "@eveheart/web-shared": "workspace:*",
     "@livekit/components-react": "^2.9.20",
     "@livekit/components-styles": "^1.2.0",
-    "@livekit/protocol": "^1.45.3",
+    "@livekit/protocol": "1.44.0",
     "@lobehub/icons": "^5.2.0",
     "@prisma/client": "^7.5.0",
     "@radix-ui/react-avatar": "^1.1.11",
