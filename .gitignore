@@ -42,5 +42,8 @@ data/
 
 .vscode/
 .agents/
+.claude/
 
 .claudeignore
+
+exchange/
