@@ -47,3 +47,6 @@ data/
 .claudeignore
 
 exchange/
+
+__pycache__/
+.venv/
