@@ -24,6 +24,7 @@
   "registries": {
     "@ai-elements": "https://ai-sdk.dev/elements/api/registry/{name}.json",
     "@magicui": "https://magicui.design/r/{name}",
-    "@agents-ui": "https://livekit.com/ui/r/{name}.json"
+    "@agents-ui": "https://livekit.com/ui/r/{name}.json",
+    "@ss-blocks": "https://shadcnstudio.com/r/blocks/{name}.json"
   }
 }
