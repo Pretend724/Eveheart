@@ -33,7 +33,7 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'LiveKit',
+  companyName: 'Eveheart',
   pageTitle: 'LiveKit Voice Agent',
   pageDescription: 'A voice agent built with LiveKit',
 
@@ -46,7 +46,7 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
   accent: '#002cf2',
   logoDark: '/lk-logo-dark.svg',
   accentDark: '#1fd5f9',
-  startButtonText: 'Start call',
+  startButtonText: '开始对话',
 
   // optional: audio visualization configuration
   // audioVisualizerType: 'bar',

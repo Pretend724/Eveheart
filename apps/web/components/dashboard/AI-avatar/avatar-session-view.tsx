@@ -1,16 +1,17 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   useAgent,
   useSessionContext,
   useSessionMessages,
+  useRoomContext,
   useVoiceAssistant,
   VideoTrack,
 } from '@livekit/components-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTheme } from 'next-themes';
-import { MessageSquareTextIcon, XIcon } from 'lucide-react';
+import { BotIcon, Loader2Icon, MessageSquareTextIcon, XIcon } from 'lucide-react';
 import type { AppConfig } from '@/app-config';
 import { AgentChatTranscript } from '@/components/agents-ui/agent-chat-transcript';
 import { AgentControlBar } from '@/components/agents-ui/agent-control-bar';
@@ -129,7 +130,10 @@ export function AvatarSessionView({
 }: AvatarSessionViewProps) {
   // Chat panel open/closed — visible by default.
   const [chatOpen, setChatOpen] = useState(true);
+  // Tracks whether an avatar-enable request has been sent to the agent.
+  const [avatarRequested, setAvatarRequested] = useState(false);
 
+  const room = useRoomContext();
   const session = useSessionContext();
   const { messages } = useSessionMessages(session);
   const { state: agentState } = useAgent();
@@ -139,6 +143,26 @@ export function AvatarSessionView({
   const isAvatar = agentVideoTrack !== undefined;
   const videoWidth = agentVideoTrack?.publication.dimensions?.width ?? 0;
   const videoHeight = agentVideoTrack?.publication.dimensions?.height ?? 0;
+
+  // Reset the pending state once the avatar track actually appears.
+  useEffect(() => {
+    if (isAvatar) setAvatarRequested(false);
+  }, [isAvatar]);
+
+  // Sends a data message to the agent requesting avatar activation.
+  const handleEnableAvatar = async () => {
+    if (isAvatar || avatarRequested) return;
+    setAvatarRequested(true);
+    const payload = new TextEncoder().encode(
+      JSON.stringify({ type: 'enable_avatar' }),
+    );
+    try {
+      await room.localParticipant.publishData(payload, { reliable: true });
+    } catch (err) {
+      console.error('Failed to send enable_avatar message:', err);
+      setAvatarRequested(false);
+    }
+  };
 
   // Honour the configured accent colour for the current theme.
   const visualizerColor =
@@ -216,6 +240,65 @@ export function AvatarSessionView({
         <div className="pointer-events-none absolute bottom-5 left-1/2 z-10 -translate-x-1/2">
           <AnimatePresence mode="wait">
             <AgentStateBadge key={agentState} state={agentState} />
+          </AnimatePresence>
+        </div>
+
+        {/* ── Avatar toggle — top-left corner ── */}
+        <div className="absolute left-4 top-4 z-20">
+          <AnimatePresence mode="wait">
+            {isAvatar ? (
+              /* Avatar is active → show a static "active" badge */
+              <motion.span
+                key="avatar-active"
+                initial={{ opacity: 0, scale: 0.75 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.75 }}
+                transition={{ duration: 0.2, ease: 'easeOut' as const }}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-full px-3 py-1',
+                  'text-xs font-semibold shadow-sm backdrop-blur-sm',
+                  'border border-indigo-500/25 bg-indigo-500/15 text-indigo-700',
+                  'dark:bg-indigo-500/10 dark:text-indigo-400',
+                )}
+              >
+                <BotIcon className="size-3" />
+                数字人已启用
+              </motion.span>
+            ) : (
+              /* Avatar not yet active → show enable button */
+              <motion.div
+                key="avatar-toggle"
+                initial={{ opacity: 0, scale: 0.75 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.75 }}
+                transition={{ duration: 0.15, ease: 'easeOut' as const }}
+              >
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label="启用数字人"
+                  disabled={avatarRequested}
+                  onClick={handleEnableAvatar}
+                  className={cn(
+                    'rounded-full border border-border/30 px-3',
+                    'bg-background/40 text-xs font-semibold backdrop-blur-sm',
+                    'hover:bg-background/60 disabled:opacity-70',
+                  )}
+                >
+                  {avatarRequested ? (
+                    <>
+                      <Loader2Icon className="size-3 animate-spin" />
+                      连接中
+                    </>
+                  ) : (
+                    <>
+                      <BotIcon className="size-3" />
+                      启用数字人
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
 
