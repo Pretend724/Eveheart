@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -240,6 +241,8 @@ export function PreferencesClient({
   initialPreferences: UserPreferencesRow | null;
 }) {
   const p = initialPreferences;
+  const router = useRouter();
+  const pathname = usePathname();
 
   // ── AI Provider state ────────────────────────────────────────────────────
   const [provider, setProvider] = useState<Provider>(
@@ -287,6 +290,54 @@ export function PreferencesClient({
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  // ── Dirty tracking ───────────────────────────────────────────────────────
+  // `committed` mirrors the last-persisted (or initial) values.  Any
+  // deviation between the live form state and this snapshot means the form
+  // has unsaved changes and the save bar should be visible.
+  const [committed, setCommitted] = useState(() => ({
+    provider: (p?.aiProvider as Provider) ?? "siliconflow",
+    apiKey: p?.aiApiKey ?? "",
+    baseUrl: p?.aiBaseUrl ?? "",
+    model: p?.aiModel ?? "mimo-v2-flash",
+    customModel: p?.aiProvider === "custom" ? (p?.aiModel ?? "") : "",
+    personaName: p?.personaName ?? "Eveheart",
+    replyLanguage: p?.replyLanguage ?? "zh-CN",
+    voiceEnabled: p?.voiceEnabled ?? true,
+    voiceSpeed: (p?.voiceSpeed as VoiceSpeed) ?? "normal",
+    fontSize: (p?.fontSize as FontSize) ?? "standard",
+    elderlyMode: p?.elderlyMode ?? false,
+    highContrast: p?.highContrast ?? false,
+    reminderEnabled: p?.reminderEnabled ?? false,
+    reminderTime: p?.reminderTime ?? "20:00",
+    reminderFreq: (p?.reminderFreq as ReminderFreq) ?? "daily",
+  }));
+
+  const isDirty = useMemo(
+    () =>
+      provider !== committed.provider ||
+      apiKey !== committed.apiKey ||
+      baseUrl !== committed.baseUrl ||
+      model !== committed.model ||
+      customModel !== committed.customModel ||
+      personaName !== committed.personaName ||
+      replyLanguage !== committed.replyLanguage ||
+      voiceEnabled !== committed.voiceEnabled ||
+      voiceSpeed !== committed.voiceSpeed ||
+      fontSize !== committed.fontSize ||
+      elderlyMode !== committed.elderlyMode ||
+      highContrast !== committed.highContrast ||
+      reminderEnabled !== committed.reminderEnabled ||
+      reminderTime !== committed.reminderTime ||
+      reminderFreq !== committed.reminderFreq,
+    [
+      provider, apiKey, baseUrl, model, customModel,
+      personaName, replyLanguage, voiceEnabled, voiceSpeed,
+      fontSize, elderlyMode, highContrast,
+      reminderEnabled, reminderTime, reminderFreq,
+      committed,
+    ],
+  );
 
   // ── Derived ──────────────────────────────────────────────────────────────
   const currentProvider = PROVIDERS.find((x) => x.id === provider)!;
@@ -361,6 +412,32 @@ export function PreferencesClient({
     if (result.success) {
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
+      // ── Mark current values as committed (clears dirty flag) ───────────────
+      setCommitted({
+        provider,
+        apiKey,
+        baseUrl,
+        model,
+        customModel,
+        personaName,
+        replyLanguage,
+        voiceEnabled,
+        voiceSpeed,
+        fontSize,
+        elderlyMode,
+        highContrast,
+        reminderEnabled,
+        reminderTime,
+        reminderFreq,
+      });
+      // ── Route based on elderlyMode state ──────────────────────────────────
+      if (elderlyMode) {
+        // Mode was just enabled → enter the aging-friendly surface.
+        router.push("/aging-friendly/settings");
+      } else if (pathname.startsWith("/aging-friendly")) {
+        // Mode was disabled from within aging-friendly settings → exit to dashboard.
+        router.push("/dashboard/setting/preferences-setting");
+      }
     } else {
       setSaveError(result.error ?? "保存失败");
     }
@@ -622,35 +699,9 @@ export function PreferencesClient({
               <MonitorIcon className="size-5 text-primary" />
               显示与无障碍
             </CardTitle>
-            <CardDescription>
-              调整界面字号与显示效果，支持适老化大字模式与高对比度。
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-3">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                界面字号
-              </Label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {FONT_SIZES.map(({ id, label, previewClass }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => { setFontSize(id); if (elderlyMode && id !== "xxl") setElderlyMode(false); }}
-                    className={cn(
-                      "flex flex-col items-center gap-2 rounded-xl border-2 px-3 py-4 transition-all",
-                      fontSize === id
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
-                    )}
-                  >
-                    <span className={cn("font-bold leading-none", previewClass)}>Aa</span>
-                    <span className="text-[11px] font-medium">{label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <Separator />
+            
             <div className={cn(
               "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl border-2 p-5 transition-all",
               elderlyMode ? "border-primary bg-primary/5" : "border-border",
@@ -660,9 +711,9 @@ export function PreferencesClient({
                 <div className="space-y-1">
                   <p className="font-semibold text-sm">适老化模式</p>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    启用后自动切换为超大字号、简化界面与语音引导，适合视力或操作不便的用户。家属可代为开启。
+                    启用后自动切换到适老化模式
                   </p>
-                  {elderlyMode && <Badge className="mt-1 text-[10px] h-4">已启用 · 字号已调整为超大</Badge>}
+                  {elderlyMode && <Badge className="mt-1 text-[10px] h-4">已启用 · 保存更改后将进入适老化模式</Badge>}
                 </div>
               </div>
               <Switch
@@ -670,10 +721,6 @@ export function PreferencesClient({
                 onCheckedChange={(v) => { setElderlyMode(v); if (v) setFontSize("xxl"); }}
               />
             </div>
-            <Separator />
-            <SectionRow label="高对比度显示" description="增强文字与背景的对比度，改善弱视用户的阅读体验" htmlFor="contrast-switch">
-              <Switch id="contrast-switch" checked={highContrast} onCheckedChange={setHighContrast} />
-            </SectionRow>
           </CardContent>
         </Card>
 
@@ -721,32 +768,34 @@ export function PreferencesClient({
         </Card>
       </div>
 
-      {/* Floating Save Bar */}
-      <div className="fixed bottom-0 right-0 inset-x-0 z-50 border-t border-border bg-background/80 backdrop-blur-md">
-        <div className="max-w-4xl mx-auto px-5 py-3 flex items-center gap-4">
-          <p className="text-sm text-muted-foreground hidden sm:block flex-1">
-            更改将在保存后立即生效。
-          </p>
-          <div className="flex items-center gap-3 ml-auto">
-            {saveError && (
-              <span className="flex items-center gap-1.5 text-sm text-destructive">
-                <XCircleIcon className="size-4" />
-                {saveError}
-              </span>
-            )}
-            {saveSuccess && (
-              <span className="flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400">
-                <CheckCircle2Icon className="size-4" />
-                保存成功
-              </span>
-            )}
-            <Button onClick={handleSave} disabled={isSaving} className="gap-2 px-6">
-              {isSaving ? <Loader2Icon className="size-4 animate-spin" /> : <SaveIcon className="size-4" />}
-              {isSaving ? "保存中…" : "保存设置"}
-            </Button>
+      {/* Floating Save Bar — only visible when the form has unsaved changes */}
+      {(isDirty || saveError) && (
+        <div className="fixed bottom-0 right-0 inset-x-0 z-50 border-t border-border bg-background/80 backdrop-blur-md animate-in slide-in-from-bottom-2 duration-200">
+          <div className="max-w-4xl mx-auto px-5 py-3 flex items-center gap-4">
+            <p className="text-sm text-muted-foreground hidden sm:block flex-1">
+              您有未保存的更改，保存后立即生效。
+            </p>
+            <div className="flex items-center gap-3 ml-auto">
+              {saveError && (
+                <span className="flex items-center gap-1.5 text-sm text-destructive">
+                  <XCircleIcon className="size-4" />
+                  {saveError}
+                </span>
+              )}
+              {saveSuccess && (
+                <span className="flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400">
+                  <CheckCircle2Icon className="size-4" />
+                  保存成功
+                </span>
+              )}
+              <Button onClick={handleSave} disabled={isSaving} className="gap-2 px-6">
+                {isSaving ? <Loader2Icon className="size-4 animate-spin" /> : <SaveIcon className="size-4" />}
+                {isSaving ? "保存中…" : "保存设置"}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </main>
   );
 }
