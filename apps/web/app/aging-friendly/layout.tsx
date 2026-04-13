@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AgingFriendlyNav from "./aging-friendly-nav";
 import { Logo } from "@eveheart/web-shared";
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 
 export const metadata: Metadata = {
   title: "Eveheart · 适老化模式",
@@ -23,6 +24,7 @@ export default async function AgingFriendlyLayout({
       <header className="fixed top-0 inset-x-0 z-20 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="flex items-center justify-center h-16 px-4">
           <Logo></Logo>
+          <AnimatedThemeToggler className="ml-auto"></AnimatedThemeToggler>
         </div>
       </header>
 
