@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import AgingFriendlyNav from "./aging-friendly-nav";
-import { Logo } from "@eveheart/web-shared";
+import { Logo } from "@/components/logo";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 
 export const metadata: Metadata = {

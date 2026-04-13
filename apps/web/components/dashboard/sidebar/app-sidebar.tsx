@@ -26,7 +26,7 @@ import {
   HeartHandshakeIcon,
   Database,
 } from "lucide-react";
-import { Logo } from "@eveheart/web-shared";
+import { Logo } from "@/components/logo";
 
 const data = {
   navMain: [
@@ -133,7 +133,9 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Logo></Logo>
+              <div>
+                <Logo></Logo>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

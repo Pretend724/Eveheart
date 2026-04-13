@@ -15,7 +15,6 @@
     "@auth/prisma-adapter": "^2.11.1",
     "@eveheart/db": "workspace:*",
     "@eveheart/rag-db": "workspace:*",
-    "@eveheart/web-shared": "workspace:*",
     "@livekit/components-react": "^2.9.20",
     "@livekit/components-styles": "^1.2.0",
     "@livekit/protocol": "1.44.0",

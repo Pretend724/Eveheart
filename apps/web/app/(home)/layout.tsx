@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Logo } from "@eveheart/web-shared";
 import Image from "next/image";
+import { Logo } from "@/components/logo";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 
 export default function Home({ children }: { children: React.ReactNode }) {

@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Eveheart - AI情感陪护系统",
   description: "AI情感陪护虚拟数字人系统",
+  icons:{
+    icon: "/logo.svg"
+  }
 };
 
 export default function RootLayout({

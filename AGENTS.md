@@ -13,7 +13,6 @@ Current production-facing stack:
 - `apps/web`: Next.js 16 App Router application
 - `packages/db`: Prisma data layer for core business tables in PostgreSQL
 - `packages/rag-db`: Drizzle data layer for RAG tables in the `rag` schema
-- `packages/web`: tiny shared UI package
 
 There is also a Python directory under `services/ai`, but it is not wired into
 the main Next.js runtime flow today. Treat it as adjacent research/service code,
@@ -28,7 +27,6 @@ apps/
 packages/
   db/               Prisma client + schema + migrations
   rag-db/           Drizzle schema + retrieval API + migrations
-  web/              Shared UI exports
 
 services/
   ai/               Python AI experiments / service assets
