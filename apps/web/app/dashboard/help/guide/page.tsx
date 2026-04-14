@@ -767,16 +767,16 @@ export default function GuidePage() {
                   className="block dark:hidden"
                   animationStyle="from-center"
                   videoSrc="/demo.mp4"
-                  thumbnailSrc="/thumbnail.jpg"
-                  thumbnailAlt="Hero Video"
+                  thumbnailSrc="/login-page.jpeg"
+                  thumbnailAlt="guide Video"
                 />
                 <HeroVideoDialog
                   className="hidden dark:block"
                   animationStyle="from-center"
                   videoSrc="/demo.mp4"
-                  thumbnailSrc="/thumbnail-dark.jpg"
-                  thumbnailAlt="Hero Video"
-                />
+                  thumbnailSrc="/login-page-dark.jpeg"
+                  thumbnailAlt="guide Video"
+                />  
               </div>
             </CardContent>
           </Card>
