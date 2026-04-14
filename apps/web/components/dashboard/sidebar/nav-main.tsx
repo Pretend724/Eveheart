@@ -25,6 +25,7 @@ type NavItem = {
   items?: {
     title: string;
     url: string;
+    isActive?: boolean;
   }[];
 };
 
@@ -50,7 +51,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
 
           return (
             <Collapsible
-              key={item.title}
+              key={`${item.title}-${item.isActive ? "active" : "inactive"}`}
               asChild
               defaultOpen={item.isActive}
               className="group/collapsible"
@@ -68,7 +69,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                   <SidebarMenuSub>
                     {item.items?.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
+                        <SidebarMenuSubButton asChild isActive={subItem.isActive}>
                           <Link href={subItem.url}>
                             <span>{subItem.title}</span>
                           </Link>

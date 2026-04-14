@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { type User } from "next-auth";
+import { usePathname } from "next/navigation";
 
 import { NavMain } from "@/components/dashboard/sidebar/nav-main";
 import { NavSecondary } from "@/components/dashboard/sidebar/nav-secondary";
@@ -18,7 +19,6 @@ import {
 import {
   ActivityIcon,
   BookOpenIcon,
-  HomeIcon,
   MessageSquareHeartIcon,
   Settings2Icon,
   LifeBuoyIcon,
@@ -30,22 +30,10 @@ import { Logo } from "@/components/logo";
 
 const data = {
   navMain: [
-    // {
-    //   title: "控制台总览",
-    //   url: "#",
-    //   icon: <HomeIcon />,
-    //   items: [
-    //     {
-    //       title: "首页",
-    //       url: "/dashboard",
-    //     },
-    //   ],
-    // },
     {
       title: "AI陪护",
       url: "#",
       icon: <HeartHandshakeIcon />,
-      isActive: true,
       items: [
         {
           title: "即时对话",
@@ -117,15 +105,66 @@ const data = {
   ],
 };
 
+function isPathActive(pathname: string, href: string) {
+  if (!href || href === "#") {
+    return false;
+  }
+
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function getLongestMatchedHref(
+  pathname: string,
+  hrefs: string[],
+) {
+  const matches = hrefs.filter((href) => isPathActive(pathname, href));
+  if (matches.length === 0) {
+    return null;
+  }
+
+  return matches.reduce((longest, current) =>
+    current.length > longest.length ? current : longest,
+  );
+}
+
 export function AppSidebar({
   user,
   ...props
 }: React.ComponentProps<typeof Sidebar> & { user?: User }) {
+  const pathname = usePathname();
+
   const navUser = {
     name: user?.name || "Eveheart 用户",
     email: user?.email || "",
     avatar: user?.image || "",
   };
+
+  const navMainItems = React.useMemo(() => {
+    return data.navMain.map((item) => {
+      const longestMatchedSubItemHref = item.items
+        ? getLongestMatchedHref(
+            pathname,
+            item.items.map((subItem) => subItem.url),
+          )
+        : null;
+
+      const items =
+        item.items?.map((subItem) => ({
+          ...subItem,
+          isActive: subItem.url === longestMatchedSubItemHref,
+        })) ?? undefined;
+
+      const isActive = items
+        ? items.some((subItem) => subItem.isActive)
+        : isPathActive(pathname, item.url);
+
+      return {
+        ...item,
+        isActive,
+        items,
+      };
+    });
+  }, [pathname]);
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -134,14 +173,14 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <div>
-                <Logo></Logo>
+                <Logo />
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMainItems} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
