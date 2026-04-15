@@ -94,34 +94,36 @@ export async function inviteFamilyMemberAction(input: unknown) {
     return failure("没有找到对应的家属账号，请确认用户名或邮箱是否正确。");
   }
 
-  const relationship = await prisma.familyRelationship.upsert({
+  const existingRelationship = await prisma.familyRelationship.findUnique({
     where: {
       elderId_familyMemberId: {
         elderId: user.id,
         familyMemberId: targetUser.id,
       },
     },
-    create: {
-      elderId: user.id,
-      familyMemberId: targetUser.id,
-      status: "PENDING",
-      confirmedAt: null,
-    },
-    update: {
-      status: "PENDING",
-      confirmedAt: null,
-    },
-    include: {
-      familyMember: {
-        select: { id: true, name: true, email: true },
-      },
-    },
+    select: { id: true, status: true },
   });
 
-  const alreadyAccepted = relationship.status === "ACCEPTED";
-  if (alreadyAccepted) {
+  if (existingRelationship?.status === "ACCEPTED") {
     return failure("该家属已经与您绑定，无需重复邀请。");
   }
+
+  const relationship = existingRelationship
+    ? await prisma.familyRelationship.update({
+        where: { id: existingRelationship.id },
+        data: {
+          status: "PENDING",
+          confirmedAt: null,
+        },
+      })
+    : await prisma.familyRelationship.create({
+        data: {
+          elderId: user.id,
+          familyMemberId: targetUser.id,
+          status: "PENDING",
+          confirmedAt: null,
+        },
+      });
 
   await prisma.notification.create({
     data: {

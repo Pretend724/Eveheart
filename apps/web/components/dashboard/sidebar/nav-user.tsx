@@ -1,7 +1,15 @@
 "use client";
 
 import { useTransition } from "react";
+import Link from "next/link";
+import {
+  BellIcon,
+  ChevronsUpDownIcon,
+  LogOutIcon,
+  Settings2Icon,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,19 +21,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { logoutAction } from "@/lib/actions/logout";
-import {
-  BadgeCheckIcon,
-  BellIcon,
-  ChevronsUpDownIcon,
-  LogOutIcon,
-  Settings2Icon,
-} from "lucide-react";
-import Link from "next/link";
+import { useNotificationCenter } from "@/components/dashboard/notifications/notification-center";
 
 export function NavUser({
   user,
@@ -38,10 +40,25 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const [isPending, startTransition] = useTransition();
+  const { openNotificationCenter, unreadCount } = useNotificationCenter();
   const fallback = user.name?.trim()?.slice(0, 1) || "U";
 
   return (
     <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          type="button"
+          tooltip="通知中心"
+          onClick={() => openNotificationCenter()}
+        >
+          <BellIcon />
+          <span>通知中心</span>
+          {unreadCount > 0 ? (
+            <SidebarMenuBadge>{unreadCount > 99 ? "99+" : unreadCount}</SidebarMenuBadge>
+          ) : null}
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -49,19 +66,18 @@ export function NavUser({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
+              <Avatar className="size-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">
-                  {fallback}
-                </AvatarFallback>
+                <AvatarFallback className="rounded-lg">{fallback}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
-              <ChevronsUpDownIcon className="ml-auto size-4" />
+              <ChevronsUpDownIcon className="ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
@@ -70,11 +86,9 @@ export function NavUser({
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="size-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">
-                    {fallback}
-                  </AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{fallback}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
@@ -82,7 +96,9 @@ export function NavUser({
                 </div>
               </div>
             </DropdownMenuLabel>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/setting/account-setting">
@@ -90,12 +106,15 @@ export function NavUser({
                   系统设置
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => openNotificationCenter()}>
                 <BellIcon />
                 通知中心
+                {unreadCount > 0 ? <Badge className="ml-auto">{unreadCount}</Badge> : null}
               </DropdownMenuItem>
             </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuItem
               disabled={isPending}
               onSelect={(event) => {

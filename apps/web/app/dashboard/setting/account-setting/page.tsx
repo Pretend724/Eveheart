@@ -1,8 +1,9 @@
+import { redirect } from "next/navigation";
+import { TriangleAlert } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Item,
   ItemActions,
@@ -11,35 +12,66 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UsernameForm } from "@/components/dashboard/account-setting/username-form";
 import { PasswordForm } from "@/components/dashboard/account-setting/password-form";
 import { DataPrivacyActions } from "@/components/dashboard/account-setting/data-privacy-actions";
 import { RetentionPolicyForm } from "@/components/dashboard/account-setting/retention-policy-form";
 import { DeleteAccountAction } from "@/components/dashboard/account-setting/delete-account-action";
-import { TriangleAlert } from "lucide-react";
+import { FamilyManagementSection } from "@/components/dashboard/account-setting/family-management-section";
 
 export default async function AccountSettingPage() {
   const session = await auth();
 
-  if (!session) {
+  if (!session?.user?.id) {
     redirect("/login");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { name: true, email: true, retentionPolicy: true },
-  });
+  const [user, chatSessions, preferences, asElderRelationships, asFamilyRelationships] =
+    await Promise.all([
+      prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { name: true, email: true, image: true, retentionPolicy: true },
+      }),
+      prisma.chatSession.findMany({
+        where: { userId: session.user.id },
+        include: { messages: { orderBy: { createdAt: "asc" } } },
+        orderBy: { createdAt: "asc" },
+      }),
+      prisma.userPreferences
+        .findUnique({
+          where: { userId: session.user.id },
+          select: { elderlyMode: true, highContrast: true },
+        })
+        .catch(() => null),
+      prisma.familyRelationship.findMany({
+        where: {
+          elderId: session.user.id,
+          status: "ACCEPTED",
+        },
+        orderBy: { createdAt: "desc" },
+        include: {
+          familyMember: {
+            select: { id: true, name: true, email: true, image: true },
+          },
+        },
+      }),
+      prisma.familyRelationship.findMany({
+        where: {
+          familyMemberId: session.user.id,
+          status: { in: ["PENDING", "ACCEPTED"] },
+        },
+        orderBy: { createdAt: "desc" },
+        include: {
+          elder: {
+            select: { id: true, name: true, email: true, image: true },
+          },
+        },
+      }),
+    ]);
 
   if (!user) {
     redirect("/login");
   }
-
-  const chatSessions = await prisma.chatSession.findMany({
-    where: { userId: session.user.id },
-    include: { messages: { orderBy: { createdAt: "asc" } } },
-    orderBy: { createdAt: "asc" },
-  });
 
   const exportMarkdownLines = [
     "# Eveheart 个人数据导出",
@@ -80,43 +112,69 @@ export default async function AccountSettingPage() {
 
       const roleLabel = message.role === "assistant" ? "助手" : "用户";
 
-      exportMarkdownLines.push(
-        `**${roleLabel}:** ${text || "(无文本内容)"}`,
-        "",
-      );
+      exportMarkdownLines.push(`**${roleLabel}:** ${text || "(无文本内容)"}`, "");
     }
   }
 
   const exportMarkdown = exportMarkdownLines.join("\n");
 
+  const pendingInvites = asFamilyRelationships
+    .filter((relationship) => relationship.status === "PENDING")
+    .map((relationship) => ({
+      relationshipId: relationship.id,
+      elderId: relationship.elder.id,
+      elderName: relationship.elder.name,
+      elderEmail: relationship.elder.email,
+      elderImage: relationship.elder.image,
+      createdAt: relationship.createdAt.toISOString(),
+    }));
+
+  const connectedElders = asFamilyRelationships
+    .filter((relationship) => relationship.status === "ACCEPTED")
+    .map((relationship) => ({
+      relationshipId: relationship.id,
+      elderId: relationship.elder.id,
+      elderName: relationship.elder.name,
+      elderEmail: relationship.elder.email,
+      elderImage: relationship.elder.image,
+      confirmedAt: relationship.confirmedAt?.toISOString() ?? null,
+    }));
+
+  const invitedFamilyMembers = asElderRelationships.map((relationship) => ({
+    relationshipId: relationship.id,
+    familyMemberId: relationship.familyMember.id,
+    name: relationship.familyMember.name,
+    email: relationship.familyMember.email,
+    image: relationship.familyMember.image,
+    confirmedAt: relationship.confirmedAt?.toISOString() ?? null,
+  }));
+
   return (
-    <main className="p-5 min-h-screen">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header Section */}
-        <div className="mb-12">
-          <h3 className="font-headline text-4xl font-extrabold text-foreground tracking-tight">
+    <main className="min-h-screen p-5">
+      <div className="mx-auto flex max-w-5xl flex-col gap-8">
+        <div className="space-y-2">
+          <h1 className="font-headline text-4xl font-extrabold tracking-tight">
             账户设置
-          </h3>
+          </h1>
+          <p className="text-muted-foreground">
+            管理您的账户资料、隐私操作，以及基于亲属授权的家属协同能力。
+          </p>
         </div>
 
-        {/* Section 1: User Profile Card */}
         <Card>
           <CardContent className="p-8">
-            <div className="flex flex-col md:flex-row gap-8 items-start">
-              <div className="relative group">
-                <Avatar className="w-32 h-32 border-2 border-primary/30">
-                  <AvatarImage src="#" alt="用户头像" />
-                  <AvatarFallback className="text-xl">
-                    {user.name?.charAt(0) ?? user.email?.charAt(0) ?? "U"}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
+            <div className="flex flex-col items-start gap-8 md:flex-row">
+              <Avatar className="size-28 border border-primary/20">
+                <AvatarImage src={user.image ?? ""} alt={user.name ?? user.email} />
+                <AvatarFallback className="text-xl">
+                  {(user.name ?? user.email).slice(0, 1).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               <UsernameForm initialName={user.name ?? ""} email={user.email} />
             </div>
           </CardContent>
         </Card>
 
-        {/* Section 2: Security Settings Card */}
         <Card>
           <CardHeader className="pb-6">
             <CardTitle>安全与认证</CardTitle>
@@ -126,24 +184,35 @@ export default async function AccountSettingPage() {
           </CardContent>
         </Card>
 
-        {/* Section 3: Data & Privacy Card */}
         <Card>
           <CardHeader className="pb-6">
-            <CardTitle className="flex items-center gap-3 text-xl">
-              数据与隐私控制
-            </CardTitle>
+            <CardTitle>家属管理</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <RetentionPolicyForm
-                initialRetentionPolicy={user.retentionPolicy}
-              />
+            <FamilyManagementSection
+              preferences={{
+                elderlyMode: preferences?.elderlyMode ?? false,
+                highContrast: preferences?.highContrast ?? false,
+              }}
+              invitedFamilyMembers={invitedFamilyMembers}
+              pendingInvites={pendingInvites}
+              connectedElders={connectedElders}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-6">
+            <CardTitle>数据与隐私</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-10 md:grid-cols-2">
+              <RetentionPolicyForm initialRetentionPolicy={user.retentionPolicy} />
               <DataPrivacyActions exportMarkdown={exportMarkdown} />
             </div>
           </CardContent>
         </Card>
 
-        {/* Section 4: Account Management Card */}
         <Item variant="muted">
           <ItemMedia variant="icon">
             <TriangleAlert className="text-destructive" />
@@ -151,8 +220,7 @@ export default async function AccountSettingPage() {
           <ItemContent>
             <ItemTitle>高风险操作</ItemTitle>
             <ItemDescription>
-              删除账号为永久操作。你的情绪模式、对话历史与洞察数据将从 Eveheart
-              安全服务器中立即清除，且无法恢复。
+              删除账户是不可逆操作。您的会话记录、偏好配置以及与家属绑定相关的核心数据将被一并清除。
             </ItemDescription>
           </ItemContent>
           <ItemActions>
