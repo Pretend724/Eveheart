@@ -18,18 +18,20 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { markNotificationReadAction } from "@/lib/actions/family-notifications";
 import { cn } from "@/lib/utils";
-import type {
-  EmotionSnapshot,
-  NotificationRecord,
-  NotificationsResponse,
+import {
+  EmotionSnapshotSchema,
+  NotificationsResponseSchema,
+  type EmotionSnapshot,
+  type NotificationRecord,
+  type NotificationsResponse,
 } from "@/schemas/family-notifications";
 
 type NotificationPreferences = NotificationsResponse["preferences"];
@@ -52,6 +54,8 @@ type NotificationCenterContextValue = {
 
 const NotificationCenterContext =
   React.createContext<NotificationCenterContextValue | null>(null);
+
+const INTERACTIVE_REFRESH_THROTTLE_MS = 2000;
 
 function getNotificationIcon(type: NotificationRecord["type"]) {
   switch (type) {
@@ -77,12 +81,17 @@ function getPayloadString(
 }
 
 function formatTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "时间未知";
+  }
+
   return new Intl.DateTimeFormat("zh-CN", {
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(new Date(value));
+  }).format(date);
 }
 
 function notificationTone(type: NotificationRecord["type"]) {
@@ -108,17 +117,25 @@ function useNotificationCenterValue() {
   return context;
 }
 
-async function fetchNotificationsFromApi() {
+async function fetchNotificationsFromApi(signal?: AbortSignal) {
   const response = await fetch("/api/notifications?take=30", {
     method: "GET",
     cache: "no-store",
+    signal,
   });
 
   if (!response.ok) {
     throw new Error("无法获取通知列表。");
   }
 
-  return (await response.json()) as NotificationsResponse;
+  const payload = await response.json();
+  const parsed = NotificationsResponseSchema.safeParse(payload);
+
+  if (!parsed.success) {
+    throw new Error("通知列表响应格式无效。");
+  }
+
+  return parsed.data;
 }
 
 export function NotificationCenterProvider({
@@ -145,14 +162,31 @@ export function NotificationCenterProvider({
 
   const hasHydratedRef = React.useRef(false);
   const knownNotificationIdsRef = React.useRef<Set<string>>(new Set());
+  const notificationsRef = React.useRef<NotificationRecord[]>([]);
+  const latestRefreshRequestIdRef = React.useRef(0);
+  const interactiveRefreshLockUntilRef = React.useRef(0);
+  const inFlightMarkAsReadIdsRef = React.useRef<Set<string>>(new Set());
+
+  React.useEffect(() => {
+    notificationsRef.current = notifications;
+  }, [notifications]);
 
   const refreshNotifications = React.useCallback(async () => {
+    const requestId = latestRefreshRequestIdRef.current + 1;
+    latestRefreshRequestIdRef.current = requestId;
     setIsLoading(true);
 
+    const abortController = new AbortController();
+
     try {
-      const response = await fetchNotificationsFromApi();
+      const response = await fetchNotificationsFromApi(abortController.signal);
+
+      if (requestId !== latestRefreshRequestIdRef.current) {
+        return;
+      }
 
       setNotifications(response.notifications);
+      notificationsRef.current = response.notifications;
       setUnreadCount(response.unreadCount);
       setQuietHoursActive(response.quietHoursActive);
       setPreferences(response.preferences);
@@ -168,6 +202,7 @@ export function NotificationCenterProvider({
           .reverse()
           .forEach((notification) => {
             toast(notification.title, {
+              id: `notification:${notification.id}`,
               description: notification.summary,
               action: {
                 label: "查看",
@@ -187,7 +222,9 @@ export function NotificationCenterProvider({
         console.error("[notifications]", error);
       }
     } finally {
-      setIsLoading(false);
+      if (requestId === latestRefreshRequestIdRef.current) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
@@ -196,13 +233,24 @@ export function NotificationCenterProvider({
   }, [pathname, refreshNotifications]);
 
   React.useEffect(() => {
-    const handleFocus = () => {
+    const refreshFromInteraction = () => {
+      const now = Date.now();
+      if (now < interactiveRefreshLockUntilRef.current) {
+        return;
+      }
+
+      interactiveRefreshLockUntilRef.current =
+        now + INTERACTIVE_REFRESH_THROTTLE_MS;
       void refreshNotifications();
+    };
+
+    const handleFocus = () => {
+      refreshFromInteraction();
     };
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        void refreshNotifications();
+        refreshFromInteraction();
       }
     };
 
@@ -215,47 +263,57 @@ export function NotificationCenterProvider({
     };
   }, [refreshNotifications]);
 
-  const markAsRead = React.useCallback(
-    async (notificationId: string) => {
-      const target = notifications.find((item) => item.id === notificationId);
-      if (!target || target.isRead) {
-        return;
-      }
+  const markAsRead = React.useCallback(async (notificationId: string) => {
+    const target = notificationsRef.current.find((item) => item.id === notificationId);
+    if (!target || target.isRead) {
+      return;
+    }
 
+    if (inFlightMarkAsReadIdsRef.current.has(notificationId)) {
+      return;
+    }
+
+    inFlightMarkAsReadIdsRef.current.add(notificationId);
+
+    try {
       const result = await markNotificationReadAction({ notificationId });
       if (!result.success) {
         toast.error(result.message);
         return;
       }
 
-      setNotifications((current) =>
-        current.map((item) =>
+      const readAt = new Date().toISOString();
+
+      setNotifications((current) => {
+        const next = current.map((item) =>
           item.id === notificationId
             ? {
                 ...item,
                 isRead: true,
-                readAt: new Date().toISOString(),
+                readAt,
               }
             : item,
-        ),
-      );
+        );
+        notificationsRef.current = next;
+        return next;
+      });
       setUnreadCount((current) => Math.max(current - 1, 0));
-    },
-    [notifications],
-  );
+    } finally {
+      inFlightMarkAsReadIdsRef.current.delete(notificationId);
+    }
+  }, []);
 
-  const openNotificationCenter = React.useCallback(
-    (notificationId?: string | null) => {
-      if (notificationId) {
-        setSelectedNotificationId(notificationId);
-      } else {
-        setSelectedNotificationId((current) => current ?? notifications[0]?.id ?? null);
-      }
+  const openNotificationCenter = React.useCallback((notificationId?: string | null) => {
+    if (notificationId) {
+      setSelectedNotificationId(notificationId);
+    } else {
+      setSelectedNotificationId(
+        (current) => current ?? notificationsRef.current[0]?.id ?? null,
+      );
+    }
 
-      setOpen(true);
-    },
-    [notifications],
-  );
+    setOpen(true);
+  }, []);
 
   const closeNotificationCenter = React.useCallback(() => {
     setOpen(false);
@@ -341,16 +399,16 @@ function NotificationCenterDrawer() {
 
   const denseText = preferences.elderlyMode ? "text-base" : "text-sm";
   const panelContrast = preferences.highContrast ? "ring-1 ring-border" : "";
+  const selectedEmotionElderId =
+    selectedNotification?.type === "EMOTION_STATUS_UPDATE"
+      ? getPayloadString(selectedNotification.payload, "elderId")
+      : null;
 
   React.useEffect(() => {
-    const elderId =
-      selectedNotification?.type === "EMOTION_STATUS_UPDATE"
-        ? getPayloadString(selectedNotification.payload, "elderId")
-        : null;
-
-    if (!elderId) {
+    if (!selectedEmotionElderId) {
       setEmotionSnapshot(null);
       setEmotionError(null);
+      setEmotionLoading(false);
       return;
     }
 
@@ -361,21 +419,30 @@ function NotificationCenterDrawer() {
       setEmotionError(null);
 
       try {
-        const response = await fetch(`/api/family/emotion/${elderId}`, {
-          method: "GET",
-          signal: abortController.signal,
-          cache: "no-store",
-        });
+        const response = await fetch(
+          `/api/family/emotion/${selectedEmotionElderId}`,
+          {
+            method: "GET",
+            signal: abortController.signal,
+            cache: "no-store",
+          },
+        );
 
         if (!response.ok) {
           throw new Error("暂时无法读取情绪概览。");
         }
 
-        const payload = (await response.json()) as EmotionSnapshot;
-        setEmotionSnapshot(payload);
+        const payload = await response.json();
+        const parsed = EmotionSnapshotSchema.safeParse(payload);
+        if (!parsed.success) {
+          throw new Error("情绪概览响应格式无效。");
+        }
+
+        setEmotionSnapshot(parsed.data);
       } catch (error) {
         if (!abortController.signal.aborted) {
           console.error("[emotion-snapshot]", error);
+          setEmotionSnapshot(null);
           setEmotionError("暂时无法读取情绪概览，请稍后再试。");
         }
       } finally {
@@ -390,29 +457,50 @@ function NotificationCenterDrawer() {
     return () => {
       abortController.abort();
     };
-  }, [selectedNotification]);
+  }, [selectedEmotionElderId]);
+
+  const handleDrawerOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      if (!nextOpen) {
+        closeNotificationCenter();
+      }
+    },
+    [closeNotificationCenter],
+  );
 
   return (
-    <Sheet open={open} onOpenChange={(nextOpen) => (nextOpen ? undefined : closeNotificationCenter())}>
-      <SheetContent
-        side="right"
-        className={cn("w-full sm:max-w-3xl", preferences.elderlyMode && "sm:max-w-4xl")}
-      >
-        <SheetHeader className="pb-0">
-          <SheetTitle className={cn("flex items-center gap-2", preferences.elderlyMode && "text-xl")}>
+    <Drawer open={open} onOpenChange={handleDrawerOpenChange} direction="bottom">
+      <DrawerContent className={cn("w-full")}>
+        <DrawerHeader className="pb-0">
+          <DrawerTitle
+            className={cn(
+              "flex items-center gap-2",
+              preferences.elderlyMode && "text-xl",
+            )}
+          >
             <BellIcon />
             通知中心
             {unreadCount > 0 ? <Badge>{unreadCount}</Badge> : null}
-          </SheetTitle>
-          <SheetDescription>
+          </DrawerTitle>
+          <DrawerDescription>
             这里会汇总家属绑定、留言提醒与情绪状况更新。
-          </SheetDescription>
-        </SheetHeader>
+          </DrawerDescription>
+        </DrawerHeader>
 
         <div className="grid min-h-0 flex-1 gap-0 overflow-hidden lg:grid-cols-[0.95fr_1.05fr]">
-          <div className={cn("flex min-h-0 flex-col border-b lg:border-r lg:border-b-0", panelContrast)}>
+          <div
+            className={cn(
+              "flex min-h-0 flex-col border-b lg:border-r lg:border-b-0",
+              panelContrast,
+            )}
+          >
             <div className="flex items-center justify-between px-4 py-3">
-              <div className={cn("font-medium", preferences.elderlyMode && "text-base")}>
+              <div
+                className={cn(
+                  "font-medium",
+                  preferences.elderlyMode && "text-base",
+                )}
+              >
                 最近通知
               </div>
               {isLoading ? (
@@ -437,7 +525,8 @@ function NotificationCenterDrawer() {
                         className={cn(
                           "flex w-full flex-col gap-3 rounded-2xl border p-4 text-left transition-colors hover:bg-muted/60",
                           notificationTone(notification.type),
-                          notification.id === selectedNotificationId && "ring-2 ring-primary/30",
+                          notification.id === selectedNotificationId &&
+                            "ring-2 ring-primary/30",
                           !notification.isRead && "shadow-sm",
                           preferences.highContrast && "border-foreground/20",
                         )}
@@ -461,14 +550,23 @@ function NotificationCenterDrawer() {
                                 <Badge variant="secondary">未读</Badge>
                               ) : null}
                             </div>
-                            <p className={cn("mt-1 line-clamp-2 text-muted-foreground", denseText)}>
+                            <p
+                              className={cn(
+                                "mt-1 line-clamp-2 text-muted-foreground",
+                                denseText,
+                              )}
+                            >
                               {notification.summary}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>{formatTime(notification.createdAt)}</span>
-                          <span>{notification.sender?.name ?? notification.sender?.email ?? "系统"}</span>
+                          <span>
+                            {notification.sender?.name ??
+                              notification.sender?.email ??
+                              "系统"}
+                          </span>
                         </div>
                       </button>
                     );
@@ -480,7 +578,12 @@ function NotificationCenterDrawer() {
 
           <div className="flex min-h-0 flex-col">
             <div className="px-4 py-3">
-              <div className={cn("font-medium", preferences.elderlyMode && "text-base")}>
+              <div
+                className={cn(
+                  "font-medium",
+                  preferences.elderlyMode && "text-base",
+                )}
+              >
                 通知详情
               </div>
             </div>
@@ -491,18 +594,27 @@ function NotificationCenterDrawer() {
                   <div className={cn("rounded-2xl border p-4", panelContrast)}>
                     <div className="flex items-start gap-3">
                       <Avatar className="size-10">
-                        <AvatarImage src={selectedNotification.sender?.image ?? ""} />
+                        <AvatarImage
+                          src={selectedNotification.sender?.image ?? ""}
+                        />
                         <AvatarFallback>
-                          {(selectedNotification.sender?.name ??
+                          {(
+                            selectedNotification.sender?.name ??
                             selectedNotification.sender?.email ??
-                            "系统")
+                            "系统"
+                          )
                             .slice(0, 1)
                             .toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className={cn("font-semibold", preferences.elderlyMode && "text-lg")}>
+                          <h3
+                            className={cn(
+                              "font-semibold",
+                              preferences.elderlyMode && "text-lg",
+                            )}
+                          >
                             {selectedNotification.title}
                           </h3>
                           {!selectedNotification.isRead ? (
@@ -510,13 +622,21 @@ function NotificationCenterDrawer() {
                           ) : null}
                         </div>
                         <p className="mt-1 text-sm text-muted-foreground">
-                          来自 {selectedNotification.sender?.name ?? selectedNotification.sender?.email ?? "系统"}
+                          来自{" "}
+                          {selectedNotification.sender?.name ??
+                            selectedNotification.sender?.email ??
+                            "系统"}
                           ，于 {formatTime(selectedNotification.createdAt)} 发送
                         </p>
                       </div>
                     </div>
 
-                    <p className={cn("mt-4 leading-7", preferences.elderlyMode ? "text-base" : "text-sm")}>
+                    <p
+                      className={cn(
+                        "mt-4 leading-7",
+                        preferences.elderlyMode ? "text-base" : "text-sm",
+                      )}
+                    >
                       {selectedNotification.summary}
                     </p>
 
@@ -538,37 +658,52 @@ function NotificationCenterDrawer() {
                     <div className={cn("rounded-2xl border p-4", panelContrast)}>
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                          <h4 className={cn("font-semibold", preferences.elderlyMode && "text-lg")}>
+                          <h4
+                            className={cn(
+                              "font-semibold",
+                              preferences.elderlyMode && "text-lg",
+                            )}
+                          >
                             长者情绪概览
                           </h4>
                           <p className="mt-1 text-sm text-muted-foreground">
                             基于已授权的 EmotionLog 聚合结果展示最近状态。
                           </p>
                         </div>
-                        {emotionLoading ? <Loader2Icon className="animate-spin text-muted-foreground" /> : null}
+                        {emotionLoading ? (
+                          <Loader2Icon className="animate-spin text-muted-foreground" />
+                        ) : null}
                       </div>
 
                       {emotionError ? (
-                        <p className="mt-4 text-sm text-destructive">{emotionError}</p>
+                        <p className="mt-4 text-sm text-destructive">
+                          {emotionError}
+                        </p>
                       ) : null}
 
                       {emotionSnapshot ? (
                         <div className="mt-4 flex flex-col gap-4">
                           <div className="grid gap-3 sm:grid-cols-3">
                             <div className="rounded-xl bg-muted/50 p-3">
-                              <p className="text-xs text-muted-foreground">最新情绪</p>
+                              <p className="text-xs text-muted-foreground">
+                                最新情绪
+                              </p>
                               <p className="mt-1 font-semibold">
                                 {emotionSnapshot.latestEmotion ?? "暂无"}
                               </p>
                             </div>
                             <div className="rounded-xl bg-muted/50 p-3">
-                              <p className="text-xs text-muted-foreground">主导情绪</p>
+                              <p className="text-xs text-muted-foreground">
+                                主导情绪
+                              </p>
                               <p className="mt-1 font-semibold">
                                 {emotionSnapshot.dominantEmotion ?? "暂无"}
                               </p>
                             </div>
                             <div className="rounded-xl bg-muted/50 p-3">
-                              <p className="text-xs text-muted-foreground">平均分值</p>
+                              <p className="text-xs text-muted-foreground">
+                                平均分值
+                              </p>
                               <p className="mt-1 font-semibold">
                                 {emotionSnapshot.averageScore ?? "--"}
                               </p>
@@ -587,13 +722,17 @@ function NotificationCenterDrawer() {
                                     className="flex items-center justify-between gap-3 rounded-xl bg-muted/40 px-3 py-2"
                                   >
                                     <div>
-                                      <p className="font-medium">{entry.emotion}</p>
+                                      <p className="font-medium">
+                                        {entry.emotion}
+                                      </p>
                                       <p className="text-xs text-muted-foreground">
                                         来源：{entry.source}
                                       </p>
                                     </div>
                                     <div className="text-right">
-                                      <p className="font-medium">{entry.score}</p>
+                                      <p className="font-medium">
+                                        {entry.score}
+                                      </p>
                                       <p className="text-xs text-muted-foreground">
                                         {formatTime(entry.createdAt)}
                                       </p>
@@ -620,7 +759,7 @@ function NotificationCenterDrawer() {
             </ScrollArea>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }
