@@ -17,3 +17,24 @@ export const RetentionPolicy = {
 } as const
 
 export type RetentionPolicy = (typeof RetentionPolicy)[keyof typeof RetentionPolicy]
+
+
+export const FamilyRelationshipStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED'
+} as const
+
+export type FamilyRelationshipStatus = (typeof FamilyRelationshipStatus)[keyof typeof FamilyRelationshipStatus]
+
+
+export const NotificationType = {
+  FAMILY_INVITE: 'FAMILY_INVITE',
+  FAMILY_INVITE_ACCEPTED: 'FAMILY_INVITE_ACCEPTED',
+  FAMILY_INVITE_REJECTED: 'FAMILY_INVITE_REJECTED',
+  FAMILY_MESSAGE: 'FAMILY_MESSAGE',
+  EMOTION_STATUS_UPDATE: 'EMOTION_STATUS_UPDATE',
+  SYSTEM_ALERT: 'SYSTEM_ALERT'
+} as const
+
+export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]

@@ -58,7 +58,9 @@ export const ModelName = {
   ChatSession: 'ChatSession',
   Message: 'Message',
   UserPreferences: 'UserPreferences',
-  EmotionLog: 'EmotionLog'
+  EmotionLog: 'EmotionLog',
+  FamilyRelationship: 'FamilyRelationship',
+  Notification: 'Notification'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -168,6 +170,9 @@ export const UserPreferencesScalarFieldEnum = {
   reminderEnabled: 'reminderEnabled',
   reminderTime: 'reminderTime',
   reminderFreq: 'reminderFreq',
+  quietHoursEnabled: 'quietHoursEnabled',
+  quietHoursStart: 'quietHoursStart',
+  quietHoursEnd: 'quietHoursEnd',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -187,6 +192,37 @@ export const EmotionLogScalarFieldEnum = {
 export type EmotionLogScalarFieldEnum = (typeof EmotionLogScalarFieldEnum)[keyof typeof EmotionLogScalarFieldEnum]
 
 
+export const FamilyRelationshipScalarFieldEnum = {
+  id: 'id',
+  elderId: 'elderId',
+  familyMemberId: 'familyMemberId',
+  status: 'status',
+  confirmedAt: 'confirmedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FamilyRelationshipScalarFieldEnum = (typeof FamilyRelationshipScalarFieldEnum)[keyof typeof FamilyRelationshipScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  recipientId: 'recipientId',
+  senderId: 'senderId',
+  title: 'title',
+  summary: 'summary',
+  type: 'type',
+  isRead: 'isRead',
+  relatedEntityType: 'relatedEntityType',
+  relatedEntityId: 'relatedEntityId',
+  payload: 'payload',
+  createdAt: 'createdAt',
+  readAt: 'readAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -200,6 +236,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

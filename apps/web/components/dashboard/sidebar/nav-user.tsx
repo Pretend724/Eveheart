@@ -46,20 +46,6 @@ export function NavUser({
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarMenuButton
-          type="button"
-          tooltip="通知中心"
-          onClick={() => openNotificationCenter()}
-        >
-          <BellIcon />
-          <span>通知中心</span>
-          {unreadCount > 0 ? (
-            <SidebarMenuBadge>{unreadCount > 99 ? "99+" : unreadCount}</SidebarMenuBadge>
-          ) : null}
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-
-      <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton

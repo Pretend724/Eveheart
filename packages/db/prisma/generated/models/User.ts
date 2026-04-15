@@ -186,7 +186,7 @@ export type UserGroupByOutputType = {
   _max: UserMaxAggregateOutputType | null
 }
 
-export type GetUserGroupByPayload<T extends UserGroupByArgs> = Prisma.PrismaPromise<
+type GetUserGroupByPayload<T extends UserGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<UserGroupByOutputType, T['by']> &
       {
@@ -218,6 +218,10 @@ export type UserWhereInput = {
   sessions?: Prisma.SessionListRelationFilter
   chats?: Prisma.ChatSessionListRelationFilter
   preferences?: Prisma.XOR<Prisma.UserPreferencesNullableScalarRelationFilter, Prisma.UserPreferencesWhereInput> | null
+  elderRelationships?: Prisma.FamilyRelationshipListRelationFilter
+  familyRelationships?: Prisma.FamilyRelationshipListRelationFilter
+  sentNotifications?: Prisma.NotificationListRelationFilter
+  receivedNotifications?: Prisma.NotificationListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -234,6 +238,10 @@ export type UserOrderByWithRelationInput = {
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   chats?: Prisma.ChatSessionOrderByRelationAggregateInput
   preferences?: Prisma.UserPreferencesOrderByWithRelationInput
+  elderRelationships?: Prisma.FamilyRelationshipOrderByRelationAggregateInput
+  familyRelationships?: Prisma.FamilyRelationshipOrderByRelationAggregateInput
+  sentNotifications?: Prisma.NotificationOrderByRelationAggregateInput
+  receivedNotifications?: Prisma.NotificationOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -253,6 +261,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   sessions?: Prisma.SessionListRelationFilter
   chats?: Prisma.ChatSessionListRelationFilter
   preferences?: Prisma.XOR<Prisma.UserPreferencesNullableScalarRelationFilter, Prisma.UserPreferencesWhereInput> | null
+  elderRelationships?: Prisma.FamilyRelationshipListRelationFilter
+  familyRelationships?: Prisma.FamilyRelationshipListRelationFilter
+  sentNotifications?: Prisma.NotificationListRelationFilter
+  receivedNotifications?: Prisma.NotificationListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -299,6 +311,10 @@ export type UserCreateInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -315,6 +331,10 @@ export type UserUncheckedCreateInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUpdateInput = {
@@ -331,6 +351,10 @@ export type UserUpdateInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -347,6 +371,10 @@ export type UserUncheckedUpdateInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -426,6 +454,11 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -502,6 +535,64 @@ export type UserUpdateOneRequiredWithoutPreferencesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPreferencesInput, Prisma.UserUpdateWithoutPreferencesInput>, Prisma.UserUncheckedUpdateWithoutPreferencesInput>
 }
 
+export type UserCreateNestedOneWithoutElderRelationshipsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutElderRelationshipsInput, Prisma.UserUncheckedCreateWithoutElderRelationshipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutElderRelationshipsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutFamilyRelationshipsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutFamilyRelationshipsInput, Prisma.UserUncheckedCreateWithoutFamilyRelationshipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutFamilyRelationshipsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutElderRelationshipsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutElderRelationshipsInput, Prisma.UserUncheckedCreateWithoutElderRelationshipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutElderRelationshipsInput
+  upsert?: Prisma.UserUpsertWithoutElderRelationshipsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutElderRelationshipsInput, Prisma.UserUpdateWithoutElderRelationshipsInput>, Prisma.UserUncheckedUpdateWithoutElderRelationshipsInput>
+}
+
+export type UserUpdateOneRequiredWithoutFamilyRelationshipsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutFamilyRelationshipsInput, Prisma.UserUncheckedCreateWithoutFamilyRelationshipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutFamilyRelationshipsInput
+  upsert?: Prisma.UserUpsertWithoutFamilyRelationshipsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutFamilyRelationshipsInput, Prisma.UserUpdateWithoutFamilyRelationshipsInput>, Prisma.UserUncheckedUpdateWithoutFamilyRelationshipsInput>
+}
+
+export type UserCreateNestedOneWithoutReceivedNotificationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedNotificationsInput, Prisma.UserUncheckedCreateWithoutReceivedNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutSentNotificationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentNotificationsInput, Prisma.UserUncheckedCreateWithoutSentNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutReceivedNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedNotificationsInput, Prisma.UserUncheckedCreateWithoutReceivedNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedNotificationsInput
+  upsert?: Prisma.UserUpsertWithoutReceivedNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReceivedNotificationsInput, Prisma.UserUpdateWithoutReceivedNotificationsInput>, Prisma.UserUncheckedUpdateWithoutReceivedNotificationsInput>
+}
+
+export type UserUpdateOneWithoutSentNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentNotificationsInput, Prisma.UserUncheckedCreateWithoutSentNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentNotificationsInput
+  upsert?: Prisma.UserUpsertWithoutSentNotificationsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSentNotificationsInput, Prisma.UserUpdateWithoutSentNotificationsInput>, Prisma.UserUncheckedUpdateWithoutSentNotificationsInput>
+}
+
 export type UserCreateWithoutAccountsInput = {
   id?: string
   name?: string | null
@@ -515,6 +606,10 @@ export type UserCreateWithoutAccountsInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -530,6 +625,10 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -561,6 +660,10 @@ export type UserUpdateWithoutAccountsInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -576,6 +679,10 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -591,6 +698,10 @@ export type UserCreateWithoutSessionsInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -606,6 +717,10 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -637,6 +752,10 @@ export type UserUpdateWithoutSessionsInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -652,6 +771,10 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutChatsInput = {
@@ -667,6 +790,10 @@ export type UserCreateWithoutChatsInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutChatsInput = {
@@ -682,6 +809,10 @@ export type UserUncheckedCreateWithoutChatsInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutChatsInput = {
@@ -713,6 +844,10 @@ export type UserUpdateWithoutChatsInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutChatsInput = {
@@ -728,6 +863,10 @@ export type UserUncheckedUpdateWithoutChatsInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutPreferencesInput = {
@@ -743,6 +882,10 @@ export type UserCreateWithoutPreferencesInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutPreferencesInput = {
@@ -758,6 +901,10 @@ export type UserUncheckedCreateWithoutPreferencesInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutPreferencesInput = {
@@ -789,6 +936,10 @@ export type UserUpdateWithoutPreferencesInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPreferencesInput = {
@@ -804,6 +955,378 @@ export type UserUncheckedUpdateWithoutPreferencesInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserCreateWithoutElderRelationshipsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  password?: string | null
+  image?: string | null
+  retentionPolicy?: $Enums.RetentionPolicy
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  familyRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+}
+
+export type UserUncheckedCreateWithoutElderRelationshipsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  password?: string | null
+  image?: string | null
+  retentionPolicy?: $Enums.RetentionPolicy
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+}
+
+export type UserCreateOrConnectWithoutElderRelationshipsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutElderRelationshipsInput, Prisma.UserUncheckedCreateWithoutElderRelationshipsInput>
+}
+
+export type UserCreateWithoutFamilyRelationshipsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  password?: string | null
+  image?: string | null
+  retentionPolicy?: $Enums.RetentionPolicy
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutElderInput
+  sentNotifications?: Prisma.NotificationCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+}
+
+export type UserUncheckedCreateWithoutFamilyRelationshipsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  password?: string | null
+  image?: string | null
+  retentionPolicy?: $Enums.RetentionPolicy
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutElderInput
+  sentNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutSenderInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+}
+
+export type UserCreateOrConnectWithoutFamilyRelationshipsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutFamilyRelationshipsInput, Prisma.UserUncheckedCreateWithoutFamilyRelationshipsInput>
+}
+
+export type UserUpsertWithoutElderRelationshipsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutElderRelationshipsInput, Prisma.UserUncheckedUpdateWithoutElderRelationshipsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutElderRelationshipsInput, Prisma.UserUncheckedCreateWithoutElderRelationshipsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutElderRelationshipsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutElderRelationshipsInput, Prisma.UserUncheckedUpdateWithoutElderRelationshipsInput>
+}
+
+export type UserUpdateWithoutElderRelationshipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retentionPolicy?: Prisma.EnumRetentionPolicyFieldUpdateOperationsInput | $Enums.RetentionPolicy
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserUncheckedUpdateWithoutElderRelationshipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retentionPolicy?: Prisma.EnumRetentionPolicyFieldUpdateOperationsInput | $Enums.RetentionPolicy
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserUpsertWithoutFamilyRelationshipsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutFamilyRelationshipsInput, Prisma.UserUncheckedUpdateWithoutFamilyRelationshipsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutFamilyRelationshipsInput, Prisma.UserUncheckedCreateWithoutFamilyRelationshipsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutFamilyRelationshipsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutFamilyRelationshipsInput, Prisma.UserUncheckedUpdateWithoutFamilyRelationshipsInput>
+}
+
+export type UserUpdateWithoutFamilyRelationshipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retentionPolicy?: Prisma.EnumRetentionPolicyFieldUpdateOperationsInput | $Enums.RetentionPolicy
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutElderNestedInput
+  sentNotifications?: Prisma.NotificationUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserUncheckedUpdateWithoutFamilyRelationshipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retentionPolicy?: Prisma.EnumRetentionPolicyFieldUpdateOperationsInput | $Enums.RetentionPolicy
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutElderNestedInput
+  sentNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutSenderNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserCreateWithoutReceivedNotificationsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  password?: string | null
+  image?: string | null
+  retentionPolicy?: $Enums.RetentionPolicy
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationCreateNestedManyWithoutSenderInput
+}
+
+export type UserUncheckedCreateWithoutReceivedNotificationsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  password?: string | null
+  image?: string | null
+  retentionPolicy?: $Enums.RetentionPolicy
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutFamilyMemberInput
+  sentNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutSenderInput
+}
+
+export type UserCreateOrConnectWithoutReceivedNotificationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedNotificationsInput, Prisma.UserUncheckedCreateWithoutReceivedNotificationsInput>
+}
+
+export type UserCreateWithoutSentNotificationsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  password?: string | null
+  image?: string | null
+  retentionPolicy?: $Enums.RetentionPolicy
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipCreateNestedManyWithoutFamilyMemberInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+}
+
+export type UserUncheckedCreateWithoutSentNotificationsInput = {
+  id?: string
+  name?: string | null
+  email: string
+  emailVerified?: Date | string | null
+  password?: string | null
+  image?: string | null
+  retentionPolicy?: $Enums.RetentionPolicy
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  preferences?: Prisma.UserPreferencesUncheckedCreateNestedOneWithoutUserInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutElderInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedCreateNestedManyWithoutFamilyMemberInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+}
+
+export type UserCreateOrConnectWithoutSentNotificationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentNotificationsInput, Prisma.UserUncheckedCreateWithoutSentNotificationsInput>
+}
+
+export type UserUpsertWithoutReceivedNotificationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutReceivedNotificationsInput, Prisma.UserUncheckedUpdateWithoutReceivedNotificationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedNotificationsInput, Prisma.UserUncheckedCreateWithoutReceivedNotificationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutReceivedNotificationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutReceivedNotificationsInput, Prisma.UserUncheckedUpdateWithoutReceivedNotificationsInput>
+}
+
+export type UserUpdateWithoutReceivedNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retentionPolicy?: Prisma.EnumRetentionPolicyFieldUpdateOperationsInput | $Enums.RetentionPolicy
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUncheckedUpdateWithoutReceivedNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retentionPolicy?: Prisma.EnumRetentionPolicyFieldUpdateOperationsInput | $Enums.RetentionPolicy
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutFamilyMemberNestedInput
+  sentNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutSenderNestedInput
+}
+
+export type UserUpsertWithoutSentNotificationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSentNotificationsInput, Prisma.UserUncheckedUpdateWithoutSentNotificationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentNotificationsInput, Prisma.UserUncheckedCreateWithoutSentNotificationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSentNotificationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSentNotificationsInput, Prisma.UserUncheckedUpdateWithoutSentNotificationsInput>
+}
+
+export type UserUpdateWithoutSentNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retentionPolicy?: Prisma.EnumRetentionPolicyFieldUpdateOperationsInput | $Enums.RetentionPolicy
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUpdateManyWithoutFamilyMemberNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSentNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retentionPolicy?: Prisma.EnumRetentionPolicyFieldUpdateOperationsInput | $Enums.RetentionPolicy
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+  preferences?: Prisma.UserPreferencesUncheckedUpdateOneWithoutUserNestedInput
+  elderRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutElderNestedInput
+  familyRelationships?: Prisma.FamilyRelationshipUncheckedUpdateManyWithoutFamilyMemberNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 
@@ -815,12 +1338,20 @@ export type UserCountOutputType = {
   accounts: number
   sessions: number
   chats: number
+  elderRelationships: number
+  familyRelationships: number
+  sentNotifications: number
+  receivedNotifications: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | UserCountOutputTypeCountAccountsArgs
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
   chats?: boolean | UserCountOutputTypeCountChatsArgs
+  elderRelationships?: boolean | UserCountOutputTypeCountElderRelationshipsArgs
+  familyRelationships?: boolean | UserCountOutputTypeCountFamilyRelationshipsArgs
+  sentNotifications?: boolean | UserCountOutputTypeCountSentNotificationsArgs
+  receivedNotifications?: boolean | UserCountOutputTypeCountReceivedNotificationsArgs
 }
 
 /**
@@ -854,6 +1385,34 @@ export type UserCountOutputTypeCountChatsArgs<ExtArgs extends runtime.Types.Exte
   where?: Prisma.ChatSessionWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountElderRelationshipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FamilyRelationshipWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountFamilyRelationshipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FamilyRelationshipWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSentNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountReceivedNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -869,6 +1428,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   chats?: boolean | Prisma.User$chatsArgs<ExtArgs>
   preferences?: boolean | Prisma.User$preferencesArgs<ExtArgs>
+  elderRelationships?: boolean | Prisma.User$elderRelationshipsArgs<ExtArgs>
+  familyRelationships?: boolean | Prisma.User$familyRelationshipsArgs<ExtArgs>
+  sentNotifications?: boolean | Prisma.User$sentNotificationsArgs<ExtArgs>
+  receivedNotifications?: boolean | Prisma.User$receivedNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -914,6 +1477,10 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   chats?: boolean | Prisma.User$chatsArgs<ExtArgs>
   preferences?: boolean | Prisma.User$preferencesArgs<ExtArgs>
+  elderRelationships?: boolean | Prisma.User$elderRelationshipsArgs<ExtArgs>
+  familyRelationships?: boolean | Prisma.User$familyRelationshipsArgs<ExtArgs>
+  sentNotifications?: boolean | Prisma.User$sentNotificationsArgs<ExtArgs>
+  receivedNotifications?: boolean | Prisma.User$receivedNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -926,6 +1493,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     sessions: Prisma.$SessionPayload<ExtArgs>[]
     chats: Prisma.$ChatSessionPayload<ExtArgs>[]
     preferences: Prisma.$UserPreferencesPayload<ExtArgs> | null
+    elderRelationships: Prisma.$FamilyRelationshipPayload<ExtArgs>[]
+    familyRelationships: Prisma.$FamilyRelationshipPayload<ExtArgs>[]
+    sentNotifications: Prisma.$NotificationPayload<ExtArgs>[]
+    receivedNotifications: Prisma.$NotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1335,6 +1906,10 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   chats<T extends Prisma.User$chatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$chatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   preferences<T extends Prisma.User$preferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$preferencesArgs<ExtArgs>>): Prisma.Prisma__UserPreferencesClient<runtime.Types.Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  elderRelationships<T extends Prisma.User$elderRelationshipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$elderRelationshipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FamilyRelationshipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  familyRelationships<T extends Prisma.User$familyRelationshipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$familyRelationshipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FamilyRelationshipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sentNotifications<T extends Prisma.User$sentNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  receivedNotifications<T extends Prisma.User$receivedNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1854,6 +2429,102 @@ export type User$preferencesArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   include?: Prisma.UserPreferencesInclude<ExtArgs> | null
   where?: Prisma.UserPreferencesWhereInput
+}
+
+/**
+ * User.elderRelationships
+ */
+export type User$elderRelationshipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FamilyRelationship
+   */
+  select?: Prisma.FamilyRelationshipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FamilyRelationship
+   */
+  omit?: Prisma.FamilyRelationshipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FamilyRelationshipInclude<ExtArgs> | null
+  where?: Prisma.FamilyRelationshipWhereInput
+  orderBy?: Prisma.FamilyRelationshipOrderByWithRelationInput | Prisma.FamilyRelationshipOrderByWithRelationInput[]
+  cursor?: Prisma.FamilyRelationshipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FamilyRelationshipScalarFieldEnum | Prisma.FamilyRelationshipScalarFieldEnum[]
+}
+
+/**
+ * User.familyRelationships
+ */
+export type User$familyRelationshipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FamilyRelationship
+   */
+  select?: Prisma.FamilyRelationshipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FamilyRelationship
+   */
+  omit?: Prisma.FamilyRelationshipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FamilyRelationshipInclude<ExtArgs> | null
+  where?: Prisma.FamilyRelationshipWhereInput
+  orderBy?: Prisma.FamilyRelationshipOrderByWithRelationInput | Prisma.FamilyRelationshipOrderByWithRelationInput[]
+  cursor?: Prisma.FamilyRelationshipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FamilyRelationshipScalarFieldEnum | Prisma.FamilyRelationshipScalarFieldEnum[]
+}
+
+/**
+ * User.sentNotifications
+ */
+export type User$sentNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * User.receivedNotifications
+ */
+export type User$receivedNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
 }
 
 /**

@@ -57,3 +57,13 @@ export type UserPreferences = Prisma.UserPreferencesModel
  * 
  */
 export type EmotionLog = Prisma.EmotionLogModel
+/**
+ * Model FamilyRelationship
+ * 
+ */
+export type FamilyRelationship = Prisma.FamilyRelationshipModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel
