@@ -20,6 +20,21 @@ enum RetentionPolicy {
     MANUAL_ONLY
 }
 
+enum FamilyRelationshipStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+}
+
+enum NotificationType {
+    FAMILY_INVITE
+    FAMILY_INVITE_ACCEPTED
+    FAMILY_INVITE_REJECTED
+    FAMILY_MESSAGE
+    EMOTION_STATUS_UPDATE
+    SYSTEM_ALERT
+}
+
 model User {
     id              String          @id @default(uuid())
     name            String?
@@ -35,6 +50,10 @@ model User {
     sessions    Session[]
     chats       ChatSession[]
     preferences UserPreferences?
+    elderRelationships        FamilyRelationship[] @relation("ElderFamilyRelationships")
+    familyRelationships       FamilyRelationship[] @relation("FamilyMemberRelationships")
+    sentNotifications         Notification[]       @relation("NotificationSender")
+    receivedNotifications     Notification[]       @relation("NotificationRecipient")
 }
 
 model Account {
@@ -135,6 +154,12 @@ model UserPreferences {
     reminderTime    String  @default("20:00")
     /// Reminder recurrence. Values: "daily" | "weekdays" | "weekly"
     reminderFreq    String  @default("daily")
+    /// Whether notification toasts should be suppressed during quiet hours.
+    quietHoursEnabled Boolean @default(false)
+    /// Quiet hours start time in HH:MM format.
+    quietHoursStart   String  @default("22:00")
+    /// Quiet hours end time in HH:MM format.
+    quietHoursEnd     String  @default("07:00")
 
     createdAt     DateTime @default(now())
     updatedAt     DateTime @updatedAt
@@ -151,4 +176,43 @@ model EmotionLog {
     createdAt     DateTime @default(now())
 
     chatSession ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)
+}
+
+model FamilyRelationship {
+    id             String                   @id @default(uuid())
+    elderId        String
+    familyMemberId String
+    status         FamilyRelationshipStatus @default(PENDING)
+    confirmedAt    DateTime?
+    createdAt      DateTime                 @default(now())
+    updatedAt      DateTime                 @updatedAt
+
+    elder        User @relation("ElderFamilyRelationships", fields: [elderId], references: [id], onDelete: Cascade)
+    familyMember User @relation("FamilyMemberRelationships", fields: [familyMemberId], references: [id], onDelete: Cascade)
+
+    @@unique([elderId, familyMemberId])
+    @@index([elderId, status])
+    @@index([familyMemberId, status])
+}
+
+model Notification {
+    id                String           @id @default(uuid())
+    recipientId       String
+    senderId          String?
+    title             String
+    summary           String
+    type              NotificationType
+    isRead            Boolean          @default(false)
+    relatedEntityType String?
+    relatedEntityId   String?
+    payload           Json?
+    createdAt         DateTime         @default(now())
+    readAt            DateTime?
+
+    recipient User  @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+    sender    User? @relation("NotificationSender", fields: [senderId], references: [id], onDelete: SetNull)
+
+    @@index([recipientId, isRead])
+    @@index([recipientId, createdAt])
+    @@index([type, createdAt])
 }
