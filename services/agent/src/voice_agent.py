@@ -13,10 +13,11 @@ from livekit.agents import (
     inference,
     room_io,
 )
-from livekit.plugins import anam, noise_cancellation, silero, keyframe
+from livekit.plugins import anam, noise_cancellation, silero
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
 from my_agent import EveheartAgent
+from local_asr import LocalASR
 
 load_dotenv(".env")
 
@@ -27,6 +28,8 @@ server = AgentServer()
 
 def prewarm(proc: agents.JobProcess) -> None:
     proc.userdata["vad"] = silero.VAD.load()
+    proc.userdata["local_asr"] = LocalASR(language="zh")
+    logger.info("Prewarmed VAD and LocalASR.")
 
 
 server.setup_fnc = prewarm
@@ -36,12 +39,14 @@ server.setup_fnc = prewarm
 async def entrypoint(ctx: agents.JobContext) -> None:
 
     session = AgentSession(
-        stt=inference.STT(model="deepgram/nova-2", language="zh"),
+        # stt=inference.STT(
+        #     model="deepgram/nova-3",
+        #     language="zh",
+        # ),
         llm=inference.LLM(model="openai/gpt-5.2-chat-latest"),
         tts=inference.TTS(
             model="cartesia/sonic-3",
-            # voice="a167e0f3-df7e-4d52-a9c3-f949145efdab", #man
-            voice="6eb8965c-e295-47bd-a9e4-3eeebb3abcff", #woman
+            voice="a167e0f3-df7e-4d52-a9c3-f949145efdab",
             language="zh",
         ),
         vad=ctx.proc.userdata["vad"],
@@ -60,14 +65,11 @@ async def entrypoint(ctx: agents.JobContext) -> None:
             if _avatar_started:
                 return
             try:
-                # avatar = anam.AvatarSession(
-                #     persona_config=anam.PersonaConfig(
-                #         name="Hunter",
-                #         avatarId="ecfb2ddb-80ec-4526-88a7-299a4738957c",
-                #     ),
-                # )
-                avatar = keyframe.AvatarSession(
-                    persona_id="fbf30421-c647-49f8-8440-b748c01201fe",
+                avatar = anam.AvatarSession(
+                    persona_config=anam.PersonaConfig(
+                        name="Hunter",
+                        avatarId="ecfb2ddb-80ec-4526-88a7-299a4738957c",
+                    ),
                 )
                 await avatar.start(session, room=ctx.room)
                 _avatar_started = True
@@ -100,7 +102,8 @@ async def entrypoint(ctx: agents.JobContext) -> None:
     # --- Start agent session ---
     await session.start(
         room=ctx.room,
-        agent=EveheartAgent(),
+        # agent=EveheartAgent(),
+        agent=EveheartAgent(local_asr=ctx.proc.userdata["local_asr"]),
         room_options=room_io.RoomOptions(
             audio_input=room_io.AudioInputOptions(
                 noise_cancellation=lambda params: (
