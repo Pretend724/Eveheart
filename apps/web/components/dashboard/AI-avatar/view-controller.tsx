@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from 'motion/react';
 import { useSessionContext } from '@livekit/components-react';
+import { toast } from 'sonner';
 import type { AppConfig } from '@/app-config';
 import { AvatarSessionView } from '@/components/dashboard/AI-avatar/avatar-session-view';
 import { WelcomeView } from '@/components/dashboard/AI-avatar/welcome-view';

@@ -12,16 +12,18 @@ class EveheartAgent(Agent):
     def __init__(self) -> None:
         super().__init__(
             instructions=(
-                "你是 Eveheart 的实时语音 AI 助手。"
-                "回答要自然、简洁、友好。"
-                "用户说中文时优先用中文回答。"
-                "如果用户问题不明确，先简要澄清。"
+                "你是沐心,温柔的AI情感陪伴助手。"
+                "专注倾听、共情、安抚、情绪舒缓与心理陪伴。"
+                "语气温暖、简洁、治愈，全程中文。"
+                "不诊断、不治疗，只做安全陪伴。"
+                "回答简短流畅，适合语音播报。"
+                "保持尊重、保密、温暖、无评判。"
             )
         )
 
     async def on_enter(self) -> None:
         await self.session.generate_reply(
-            instructions="先用中文简短恶搞用户，并说明你已准备好语音交流。"
+            instructions="用温柔、简短、自然的中文问候用户，告诉用户你已准备好倾听与陪伴。"
         )
     async def stt_node(
         self,

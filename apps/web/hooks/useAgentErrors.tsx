@@ -33,7 +33,7 @@ export function useAgentErrors() {
       const reasons = agent.failureReasons;
 
       toastAlert({
-        title: 'Session ended',
+        title: 'Eveheart 对话已中断',
         description: (
           <>
             {reasons.length > 1 && (
@@ -44,17 +44,10 @@ export function useAgentErrors() {
               </ul>
             )}
             {reasons.length === 1 && <p className="w-full">{reasons[0]}</p>}
-            <p className="w-full">
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://docs.livekit.io/agents/start/voice-ai/"
-                className="whitespace-nowrap underline"
-              >
-                See quickstart guide
-              </a>
-              .
-            </p>
+            {reasons.length === 0 && (
+              <p className="w-full">当前语音连接已结束，请稍后重新发起对话。</p>
+            )}
+            <p className="w-full">你可以返回页面后重新开始，或稍后再试一次。</p>
           </>
         ),
       });

@@ -3,15 +3,18 @@
 import React, { useEffect, useState } from 'react';
 import {
   useAgent,
+  useLocalParticipant,
   useSessionContext,
   useSessionMessages,
   useRoomContext,
   useVoiceAssistant,
   VideoTrack,
+  type TrackReference,
 } from '@livekit/components-react';
+import { Track } from 'livekit-client';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTheme } from 'next-themes';
-import { BotIcon, Loader2Icon, MessageSquareTextIcon, XIcon } from 'lucide-react';
+import { BotIcon, CameraIcon, Loader2Icon, MessageSquareTextIcon, XIcon } from 'lucide-react';
 import type { AppConfig } from '@/app-config';
 import { AgentChatTranscript } from '@/components/agents-ui/agent-chat-transcript';
 import { AgentControlBar } from '@/components/agents-ui/agent-control-bar';
@@ -137,12 +140,26 @@ export function AvatarSessionView({
   const session = useSessionContext();
   const { messages } = useSessionMessages(session);
   const { state: agentState } = useAgent();
+  const { localParticipant } = useLocalParticipant();
   const { videoTrack: agentVideoTrack } = useVoiceAssistant();
   const { resolvedTheme } = useTheme();
 
   const isAvatar = agentVideoTrack !== undefined;
   const videoWidth = agentVideoTrack?.publication.dimensions?.width ?? 0;
   const videoHeight = agentVideoTrack?.publication.dimensions?.height ?? 0;
+  const avatarAspectRatio =
+    videoWidth > 0 && videoHeight > 0 ? `${videoWidth} / ${videoHeight}` : '9 / 16';
+  const localCameraPublication = localParticipant.getTrackPublication(Track.Source.Camera);
+  const localCameraTrack: TrackReference | undefined =
+    localCameraPublication && !localCameraPublication.isMuted
+      ? {
+          participant: localParticipant,
+          publication: localCameraPublication,
+          source: Track.Source.Camera,
+        }
+      : undefined;
+  const localCameraWidth = localCameraTrack?.publication.dimensions?.width ?? 0;
+  const localCameraHeight = localCameraTrack?.publication.dimensions?.height ?? 0;
 
   // Reset the pending state once the avatar track actually appears.
   useEffect(() => {
@@ -200,14 +217,28 @@ export function AvatarSessionView({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5, ease: 'easeInOut' as const }}
-                className="absolute inset-0"
+                className="absolute inset-0 flex items-center justify-center px-6 py-8 md:px-10 md:py-10"
               >
-                <VideoTrack
-                  trackRef={agentVideoTrack}
-                  width={videoWidth}
-                  height={videoHeight}
-                  className="h-full w-full object-cover"
-                />
+                <div
+                  className={cn(
+                    'relative flex w-full items-center justify-center overflow-hidden',
+                    'max-h-[min(74vh,56rem)] max-w-[min(68vw,34rem)]',
+                    'rounded-[2rem] border border-border/40',
+                    'bg-gradient-to-b from-background/95 via-background/80 to-background/65',
+                    'shadow-[0_24px_80px_rgba(15,23,42,0.18)] backdrop-blur-md',
+                    'dark:shadow-[0_24px_90px_rgba(0,0,0,0.4)]',
+                    chatOpen && 'md:max-w-[min(54vw,30rem)]',
+                  )}
+                  style={{ aspectRatio: avatarAspectRatio }}
+                >
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.16),_transparent_48%)] dark:bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),_transparent_48%)]" />
+                  <VideoTrack
+                    trackRef={agentVideoTrack}
+                    width={videoWidth}
+                    height={videoHeight}
+                    className="relative z-10 h-full w-full object-contain"
+                  />
+                </div>
               </motion.div>
             ) : (
               /* No video track → audio visualizer fills the space */
@@ -242,6 +273,36 @@ export function AvatarSessionView({
             <AgentStateBadge key={agentState} state={agentState} />
           </AnimatePresence>
         </div>
+
+        <AnimatePresence>
+          {localCameraTrack && (
+            <motion.div
+              key="local-camera-preview"
+              drag
+              dragMomentum={false}
+              initial={{ opacity: 0, y: 20, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.92 }}
+              transition={{ duration: 0.2, ease: 'easeOut' as const }}
+              className={cn(
+                'absolute bottom-24 left-4 z-20 overflow-hidden',
+                'w-32 sm:w-36 md:w-44',
+                'rounded-2xl border border-border/40 bg-background/80 shadow-2xl backdrop-blur-md',
+                chatOpen && 'md:left-6',
+              )}
+            >
+              <div className="relative aspect-[3/4] bg-black/90">
+                <VideoTrack
+                  trackRef={localCameraTrack}
+                  width={localCameraWidth}
+                  height={localCameraHeight}
+                  className="h-full w-full object-cover"
+                />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/45 to-transparent" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ── Avatar toggle — top-left corner ── */}
         <div className="absolute left-4 top-4 z-20">
