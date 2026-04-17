@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -52,6 +54,7 @@ export type UserPreferencesRow = {
   aiApiKey: string | null;
   aiBaseUrl: string | null;
   personaName: string;
+  avatarIdentifier?: string | null;
   replyLanguage: string;
   voiceEnabled: boolean;
   voiceSpeed: string;
@@ -66,10 +69,30 @@ export type UserPreferencesRow = {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Provider = "siliconflow" | "openai" | "deepseek" | "custom";
+type AvatarIdentifier = "muxin" | "muchen";
 type FontSize = "standard" | "large" | "xl" | "xxl";
 type VoiceSpeed = "slow" | "normal" | "fast";
 type ReminderFreq = "daily" | "weekdays" | "weekly";
 type TestStatus = "idle" | "loading" | "success" | "error";
+
+type CommittedPreferencesState = {
+  provider: Provider;
+  apiKey: string;
+  baseUrl: string;
+  model: string;
+  customModel: string;
+  personaName: string;
+  avatarIdentifier: AvatarIdentifier | null;
+  replyLanguage: string;
+  voiceEnabled: boolean;
+  voiceSpeed: VoiceSpeed;
+  fontSize: FontSize;
+  elderlyMode: boolean;
+  highContrast: boolean;
+  reminderEnabled: boolean;
+  reminderTime: string;
+  reminderFreq: ReminderFreq;
+};
 
 // ─── Static Data ──────────────────────────────────────────────────────────────
 
@@ -241,6 +264,25 @@ export function PreferencesClient({
   initialPreferences: UserPreferencesRow | null;
 }) {
   const p = initialPreferences;
+  const avatarOptions: {
+    id: AvatarIdentifier;
+    name: string;
+    imageSrc: string;
+    description: string;
+  }[] = [
+    {
+      id: "muxin",
+      name: "沐心",
+      imageSrc: "/muxin.jpg",
+      description: "温和亲切，适合更柔和的陪伴氛围。",
+    },
+    {
+      id: "muchen",
+      name: "沐辰",
+      imageSrc: "/muchen.jpg",
+      description: "沉稳清晰，适合更利落的交流体验。",
+    },
+  ];
   const router = useRouter();
   const pathname = usePathname();
 
@@ -262,6 +304,13 @@ export function PreferencesClient({
 
   // ── Chat prefs state ─────────────────────────────────────────────────────
   const [personaName, setPersonaName] = useState(p?.personaName ?? "Eveheart");
+  const [avatarIdentifier, setAvatarIdentifier] = useState<
+    AvatarIdentifier | null
+  >(
+    p?.avatarIdentifier === "muxin" || p?.avatarIdentifier === "muchen"
+      ? p.avatarIdentifier
+      : "muxin",
+  );
   const [replyLanguage, setReplyLanguage] = useState(
     p?.replyLanguage ?? "zh-CN",
   );
@@ -295,13 +344,17 @@ export function PreferencesClient({
   // `committed` mirrors the last-persisted (or initial) values.  Any
   // deviation between the live form state and this snapshot means the form
   // has unsaved changes and the save bar should be visible.
-  const [committed, setCommitted] = useState(() => ({
+  const [committed, setCommitted] = useState<CommittedPreferencesState>(() => ({
     provider: (p?.aiProvider as Provider) ?? "siliconflow",
     apiKey: p?.aiApiKey ?? "",
     baseUrl: p?.aiBaseUrl ?? "",
     model: p?.aiModel ?? "mimo-v2-flash",
     customModel: p?.aiProvider === "custom" ? (p?.aiModel ?? "") : "",
     personaName: p?.personaName ?? "Eveheart",
+    avatarIdentifier:
+      p?.avatarIdentifier === "muxin" || p?.avatarIdentifier === "muchen"
+        ? p.avatarIdentifier
+        : "muxin",
     replyLanguage: p?.replyLanguage ?? "zh-CN",
     voiceEnabled: p?.voiceEnabled ?? true,
     voiceSpeed: (p?.voiceSpeed as VoiceSpeed) ?? "normal",
@@ -321,6 +374,7 @@ export function PreferencesClient({
       model !== committed.model ||
       customModel !== committed.customModel ||
       personaName !== committed.personaName ||
+      avatarIdentifier !== committed.avatarIdentifier ||
       replyLanguage !== committed.replyLanguage ||
       voiceEnabled !== committed.voiceEnabled ||
       voiceSpeed !== committed.voiceSpeed ||
@@ -332,7 +386,7 @@ export function PreferencesClient({
       reminderFreq !== committed.reminderFreq,
     [
       provider, apiKey, baseUrl, model, customModel,
-      personaName, replyLanguage, voiceEnabled, voiceSpeed,
+      personaName, avatarIdentifier, replyLanguage, voiceEnabled, voiceSpeed,
       fontSize, elderlyMode, highContrast,
       reminderEnabled, reminderTime, reminderFreq,
       committed,
@@ -395,6 +449,7 @@ export function PreferencesClient({
       aiApiKey: apiKey || null,
       aiBaseUrl: baseUrl || null,
       personaName,
+      avatarIdentifier,
       replyLanguage,
       voiceEnabled,
       voiceSpeed,
@@ -420,6 +475,7 @@ export function PreferencesClient({
         model,
         customModel,
         personaName,
+        avatarIdentifier,
         replyLanguage,
         voiceEnabled,
         voiceSpeed,
@@ -643,6 +699,81 @@ export function PreferencesClient({
                   {testMessage}
                 </span>
               )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3 text-xl font-bold">
+              <UserIcon className="size-5 text-primary" />
+              数字人形象选择
+            </CardTitle>
+            <CardDescription>
+              选择数字人会话中使用的默认形象，保存后会同步到您的偏好设置。
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {avatarOptions.map((option) => {
+                const isSelected = avatarIdentifier === option.id;
+
+                return (
+                  <Card
+                    key={option.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setAvatarIdentifier(option.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setAvatarIdentifier(option.id);
+                      }
+                    }}
+                    className={cn(
+                      "cursor-pointer gap-0 border-2 py-0 transition-all",
+                      "hover:border-primary/50 hover:bg-muted/20",
+                      isSelected && "border-primary bg-primary/5 shadow-sm",
+                    )}
+                  >
+                    <CardHeader className="px-0">
+                      <div className="relative aspect-[4/5] w-full overflow-hidden border-b bg-muted">
+                        <Image
+                          src={option.imageSrc}
+                          alt={option.name}
+                          fill
+                          className="object-cover"
+                          sizes="(min-width: 768px) 320px, 100vw"
+                        />
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-2 px-5 pt-5">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-base font-semibold">{option.name}</p>
+                        <Badge variant={isSelected ? "default" : "secondary"}>
+                          {isSelected ? "已选中" : "可选择"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        {option.description}
+                      </p>
+                    </CardContent>
+                    <CardFooter className="border-t px-5 py-4">
+                      <Button
+                        type="button"
+                        variant={isSelected ? "default" : "outline"}
+                        className="w-full"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setAvatarIdentifier(option.id);
+                        }}
+                      >
+                        {isSelected ? "当前形象" : "选择该形象"}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

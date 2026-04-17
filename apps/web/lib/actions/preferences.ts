@@ -3,31 +3,27 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@eveheart/db";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
-// ─── Input Type ───────────────────────────────────────────────────────────────
+const savePreferencesInputSchema = z.object({
+  aiProvider: z.string().trim().min(1),
+  aiModel: z.string().trim().min(1),
+  aiApiKey: z.string().optional().nullable(),
+  aiBaseUrl: z.string().optional().nullable(),
+  personaName: z.string().trim().min(1).max(20),
+  avatarIdentifier: z.enum(["muxin", "muchen"]).nullable().optional(),
+  replyLanguage: z.string().trim().min(1),
+  voiceEnabled: z.boolean(),
+  voiceSpeed: z.enum(["slow", "normal", "fast"]),
+  fontSize: z.enum(["standard", "large", "xl", "xxl"]),
+  elderlyMode: z.boolean(),
+  highContrast: z.boolean(),
+  reminderEnabled: z.boolean(),
+  reminderTime: z.string().trim().min(1),
+  reminderFreq: z.enum(["daily", "weekdays", "weekly"]),
+});
 
-export type SavePreferencesInput = {
-  // AI Provider
-  aiProvider: string;
-  aiModel: string;
-  aiApiKey?: string | null;
-  aiBaseUrl?: string | null;
-  // Chat Experience
-  personaName: string;
-  replyLanguage: string;
-  voiceEnabled: boolean;
-  voiceSpeed: string;
-  // Display & Accessibility
-  fontSize: string;
-  elderlyMode: boolean;
-  highContrast: boolean;
-  // Notifications
-  reminderEnabled: boolean;
-  reminderTime: string;
-  reminderFreq: string;
-};
-
-// ─── Action ───────────────────────────────────────────────────────────────────
+export type SavePreferencesInput = z.infer<typeof savePreferencesInputSchema>;
 
 /**
  * Upserts the authenticated user's preferences record.
@@ -43,13 +39,17 @@ export async function savePreferencesAction(
       return { success: false, error: "未授权，请重新登录。" };
     }
 
+    const parsed = savePreferencesInputSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, error: "提交的偏好设置无效，请检查后重试。" };
+    }
+
     const sanitised = {
-      ...input,
-      // Treat empty string as "not set"
-      aiApiKey: input.aiApiKey?.trim() || null,
-      aiBaseUrl: input.aiBaseUrl?.trim() || null,
-      // Trim the persona name
-      personaName: input.personaName.trim() || "Eveheart",
+      ...parsed.data,
+      aiApiKey: parsed.data.aiApiKey?.trim() || null,
+      aiBaseUrl: parsed.data.aiBaseUrl?.trim() || null,
+      personaName: parsed.data.personaName.trim() || "Eveheart",
+      avatarIdentifier: parsed.data.avatarIdentifier ?? null,
     };
 
     await prisma.userPreferences.upsert({
@@ -59,6 +59,7 @@ export async function savePreferencesAction(
     });
 
     revalidatePath("/dashboard/setting/preferences-setting");
+    revalidatePath("/aging-friendly/settings");
     return { success: true };
   } catch (error) {
     console.error("[savePreferencesAction]", error);
