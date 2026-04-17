@@ -1,7 +1,6 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import { getProxyAuthenticatedUser } from "@/lib/server/proxy-auth";
 
 export const metadata: Metadata = {
   title: "控制台 - Eveheart",
@@ -13,11 +12,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  const user = await getProxyAuthenticatedUser();
 
-  if (!session) {
-    redirect("/login");
-  }
-
-  return <DashboardShell user={session.user}>{children}</DashboardShell>;
+  return <DashboardShell user={user ?? undefined}>{children}</DashboardShell>;
 }

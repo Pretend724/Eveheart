@@ -1,6 +1,4 @@
-import { redirect } from "next/navigation";
 import { TriangleAlert } from "lucide-react";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,34 +16,31 @@ import { DataPrivacyActions } from "@/components/dashboard/account-setting/data-
 import { RetentionPolicyForm } from "@/components/dashboard/account-setting/retention-policy-form";
 import { DeleteAccountAction } from "@/components/dashboard/account-setting/delete-account-action";
 import { FamilyManagementSection } from "@/components/dashboard/account-setting/family-management-section";
+import { getRequiredProxyAuthenticatedUser } from "@/lib/server/proxy-auth";
 
 export default async function AccountSettingPage() {
-  const session = await auth();
-
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
+  const userSession = await getRequiredProxyAuthenticatedUser();
 
   const [user, chatSessions, preferences, asElderRelationships, asFamilyRelationships] =
     await Promise.all([
       prisma.user.findUnique({
-        where: { id: session.user.id },
+        where: { id: userSession.id },
         select: { name: true, email: true, image: true, retentionPolicy: true },
       }),
       prisma.chatSession.findMany({
-        where: { userId: session.user.id },
+        where: { userId: userSession.id },
         include: { messages: { orderBy: { createdAt: "asc" } } },
         orderBy: { createdAt: "asc" },
       }),
       prisma.userPreferences
         .findUnique({
-          where: { userId: session.user.id },
+          where: { userId: userSession.id },
           select: { elderlyMode: true, highContrast: true },
         })
         .catch(() => null),
       prisma.familyRelationship.findMany({
         where: {
-          elderId: session.user.id,
+          elderId: userSession.id,
           status: "ACCEPTED",
         },
         orderBy: { createdAt: "desc" },
@@ -57,7 +52,7 @@ export default async function AccountSettingPage() {
       }),
       prisma.familyRelationship.findMany({
         where: {
-          familyMemberId: session.user.id,
+          familyMemberId: userSession.id,
           status: { in: ["PENDING", "ACCEPTED"] },
         },
         orderBy: { createdAt: "desc" },
@@ -70,7 +65,7 @@ export default async function AccountSettingPage() {
     ]);
 
   if (!user) {
-    redirect("/login");
+    throw new Error("Authenticated dashboard user record was not found.");
   }
 
   const exportMarkdownLines = [

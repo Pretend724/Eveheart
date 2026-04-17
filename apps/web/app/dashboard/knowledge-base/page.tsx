@@ -1,12 +1,7 @@
 import { getKnowledgeSourcesAction } from "@/lib/actions/knowledge";
 import { KnowledgeBaseClient } from "@/components/dashboard/knowledge-base/knowledge-base-client";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
 
 export default async function KnowledgeBasePage() {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/login");
-
   const result = await getKnowledgeSourcesAction();
   const sources = result.success ? result.data : [];
 

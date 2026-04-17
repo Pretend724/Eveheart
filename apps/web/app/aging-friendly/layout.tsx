@@ -1,6 +1,4 @@
 import { Metadata } from "next";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import AgingFriendlyNav from "./aging-friendly-nav";
 import { Logo } from "@/components/logo";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
@@ -15,9 +13,6 @@ export default async function AgingFriendlyLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
-  if (!session) redirect("/login");
-
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       {/* ── Fixed top header ── */}

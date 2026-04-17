@@ -1,7 +1,5 @@
 import { getKnowledgeSourceByIdAction } from "@/lib/actions/knowledge";
 import { ChunkManager } from "@/components/dashboard/knowledge-base/chunk-manager";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -41,9 +39,6 @@ export default async function KnowledgeBaseDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/login");
-
   const { id } = await params;
   const result = await getKnowledgeSourceByIdAction(id);
 

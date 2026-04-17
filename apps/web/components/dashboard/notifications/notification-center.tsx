@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import {
   BellIcon,
@@ -73,8 +72,6 @@ type NotificationCenterContextValue = {
 
 const NotificationCenterContext =
   React.createContext<NotificationCenterContextValue | null>(null);
-
-const INTERACTIVE_REFRESH_THROTTLE_MS = 2000;
 
 function getNotificationIcon(type: NotificationRecord["type"]) {
   switch (type) {
@@ -162,7 +159,6 @@ export function NotificationCenterProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
   const [notifications, setNotifications] = React.useState<NotificationRecord[]>([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
   const [quietHoursActive, setQuietHoursActive] = React.useState(false);
@@ -177,7 +173,7 @@ export function NotificationCenterProvider({
   const [selectedNotificationId, setSelectedNotificationId] = React.useState<string | null>(
     null,
   );
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [isDeletingAll, setIsDeletingAll] = React.useState(false);
   const [deletingNotificationIds, setDeletingNotificationIds] = React.useState<Set<string>>(
     new Set(),
@@ -187,7 +183,6 @@ export function NotificationCenterProvider({
   const knownNotificationIdsRef = React.useRef<Set<string>>(new Set());
   const notificationsRef = React.useRef<NotificationRecord[]>([]);
   const latestRefreshRequestIdRef = React.useRef(0);
-  const interactiveRefreshLockUntilRef = React.useRef(0);
   const inFlightMarkAsReadIdsRef = React.useRef<Set<string>>(new Set());
   const deletingNotificationIdsRef = React.useRef<Set<string>>(new Set());
 
@@ -255,41 +250,6 @@ export function NotificationCenterProvider({
       }
     }
   }, []);
-
-  React.useEffect(() => {
-    void refreshNotifications();
-  }, [pathname, refreshNotifications]);
-
-  React.useEffect(() => {
-    const refreshFromInteraction = () => {
-      const now = Date.now();
-      if (now < interactiveRefreshLockUntilRef.current) {
-        return;
-      }
-
-      interactiveRefreshLockUntilRef.current =
-        now + INTERACTIVE_REFRESH_THROTTLE_MS;
-      void refreshNotifications();
-    };
-
-    const handleFocus = () => {
-      refreshFromInteraction();
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        refreshFromInteraction();
-      }
-    };
-
-    window.addEventListener("focus", handleFocus);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [refreshNotifications]);
 
   const markAsRead = React.useCallback(async (notificationId: string) => {
     const target = notificationsRef.current.find((item) => item.id === notificationId);

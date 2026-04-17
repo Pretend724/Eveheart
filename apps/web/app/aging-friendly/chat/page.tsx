@@ -1,18 +1,15 @@
-import { auth } from "@/lib/auth";
 import { prisma } from "@eveheart/db";
-import { redirect } from "next/navigation";
-import ChatClient from "@/app/dashboard/chat/[sessionId]/chat-client";
 import type { UIMessage } from "ai";
+import ChatClient from "@/app/dashboard/chat/[sessionId]/chat-client";
+import { getRequiredProxyAuthenticatedUser } from "@/lib/server/proxy-auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function AgingFriendlyChatPage() {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/login");
+  const user = await getRequiredProxyAuthenticatedUser();
 
-  // ── Find the most recent chat session, or create one ───────────────────────
   let chatSession = await prisma.chatSession.findFirst({
-    where: { userId: session.user.id },
+    where: { userId: user.id },
     orderBy: { updatedAt: "desc" },
     include: {
       messages: {
@@ -25,7 +22,7 @@ export default async function AgingFriendlyChatPage() {
   if (!chatSession) {
     chatSession = await prisma.chatSession.create({
       data: {
-        userId: session.user.id,
+        userId: user.id,
         title: "适老化对话",
       },
       include: {
@@ -34,23 +31,16 @@ export default async function AgingFriendlyChatPage() {
     });
   }
 
-  // ── Convert Prisma messages to AI SDK UIMessage format ─────────────────────
-  const initialMessages: UIMessage[] = chatSession.messages.map((m) => ({
-    id: m.id,
-    role: m.role as "user" | "assistant",
+  const initialMessages: UIMessage[] = chatSession.messages.map((message) => ({
+    id: message.id,
+    role: message.role as "user" | "assistant",
     content: "",
-    parts: m.parts as UIMessage["parts"],
-    createdAt: m.createdAt,
+    parts: message.parts as UIMessage["parts"],
+    createdAt: message.createdAt,
   }));
 
   return (
-    /*
-     * Height calculation:
-     *   100svh – 64px (fixed header) – 96px (fixed bottom nav) = remaining viewport
-     * We use a fixed height so the chat scrollable area + prompt input work correctly
-     * without double scrollbars.
-     */
-    <div className="flex flex-col h-[calc(100svh-10rem)]">
+    <div className="flex h-[calc(100svh-10rem)] flex-col">
       <ChatClient sessionId={chatSession.id} initialMessages={initialMessages} />
     </div>
   );
