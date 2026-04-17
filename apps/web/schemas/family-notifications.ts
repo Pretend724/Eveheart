@@ -51,6 +51,10 @@ export const MarkNotificationReadInputSchema = z.object({
   notificationId: z.string().uuid("通知记录无效"),
 });
 
+export const DeleteNotificationInputSchema = z.object({
+  notificationId: z.string().uuid("通知记录无效"),
+});
+
 export const NotificationsQuerySchema = z.object({
   take: z.coerce.number().int().min(1).max(50).default(20),
 });
@@ -118,6 +122,7 @@ export type SendEmotionUpdateNotificationInput = z.infer<
 >;
 export type SendFamilyMessageInput = z.infer<typeof SendFamilyMessageInputSchema>;
 export type MarkNotificationReadInput = z.infer<typeof MarkNotificationReadInputSchema>;
+export type DeleteNotificationInput = z.infer<typeof DeleteNotificationInputSchema>;
 export type EmotionSnapshot = z.infer<typeof EmotionSnapshotSchema>;
 export type NotificationRecord = z.infer<typeof NotificationRecordSchema>;
 export type NotificationsResponse = z.infer<typeof NotificationsResponseSchema>;

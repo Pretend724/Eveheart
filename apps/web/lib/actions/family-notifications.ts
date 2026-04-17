@@ -5,6 +5,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
+  DeleteNotificationInputSchema,
   FamilyActionResultSchema,
   InviteFamilyMemberInputSchema,
   type FamilyActionResult,
@@ -536,5 +537,63 @@ export async function markNotificationReadAction(input: unknown) {
       input,
     });
     return failure("更新通知状态失败，请稍后重试。");
+  }
+}
+
+export async function deleteNotificationAction(input: unknown) {
+  try {
+    const user = await requireUser();
+    if (!user) {
+      return failure("请先登录后再操作通知。");
+    }
+
+    const parsed = DeleteNotificationInputSchema.safeParse(input);
+    if (!parsed.success) {
+      return formatValidationError(parsed.error);
+    }
+
+    const { count } = await prisma.notification.deleteMany({
+      where: {
+        id: parsed.data.notificationId,
+        recipientId: user.id,
+      },
+    });
+
+    if (count === 0) {
+      return failure("未找到对应通知。");
+    }
+
+    revalidateFamilyUi();
+    return success("通知已删除。");
+  } catch (error) {
+    console.error("[family-notifications][deleteNotificationAction]", error, {
+      input,
+    });
+    return failure("删除通知失败，请稍后重试。");
+  }
+}
+
+export async function deleteAllNotificationsAction() {
+  try {
+    const user = await requireUser();
+    if (!user) {
+      return failure("请先登录后再操作通知。");
+    }
+
+    const { count } = await prisma.notification.deleteMany({
+      where: {
+        recipientId: user.id,
+      },
+    });
+
+    revalidateFamilyUi();
+    if (count === 0) {
+      return success("当前没有可删除的通知。");
+    }
+
+    return success("已清空全部通知。");
+  } catch (error) {
+    console.error("[family-notifications][deleteAllNotificationsAction]", error);
+    return failure("清空通知失败，请稍后重试。");
   }
 }

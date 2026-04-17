@@ -10,9 +10,20 @@ import {
   Loader2Icon,
   MailIcon,
   ShieldAlertIcon,
+  Trash2Icon,
   UsersIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -24,7 +35,11 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { markNotificationReadAction } from "@/lib/actions/family-notifications";
+import {
+  deleteAllNotificationsAction,
+  deleteNotificationAction,
+  markNotificationReadAction,
+} from "@/lib/actions/family-notifications";
 import { cn } from "@/lib/utils";
 import {
   EmotionSnapshotSchema,
@@ -49,6 +64,10 @@ type NotificationCenterContextValue = {
   closeNotificationCenter: () => void;
   refreshNotifications: () => Promise<void>;
   markAsRead: (notificationId: string) => Promise<void>;
+  deleteNotification: (notificationId: string) => Promise<void>;
+  deleteAllNotifications: () => Promise<void>;
+  isDeletingAll: boolean;
+  deletingNotificationIds: Set<string>;
   setSelectedNotificationId: (notificationId: string | null) => void;
 };
 
@@ -159,6 +178,10 @@ export function NotificationCenterProvider({
     null,
   );
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isDeletingAll, setIsDeletingAll] = React.useState(false);
+  const [deletingNotificationIds, setDeletingNotificationIds] = React.useState<Set<string>>(
+    new Set(),
+  );
 
   const hasHydratedRef = React.useRef(false);
   const knownNotificationIdsRef = React.useRef<Set<string>>(new Set());
@@ -166,10 +189,15 @@ export function NotificationCenterProvider({
   const latestRefreshRequestIdRef = React.useRef(0);
   const interactiveRefreshLockUntilRef = React.useRef(0);
   const inFlightMarkAsReadIdsRef = React.useRef<Set<string>>(new Set());
+  const deletingNotificationIdsRef = React.useRef<Set<string>>(new Set());
 
   React.useEffect(() => {
     notificationsRef.current = notifications;
   }, [notifications]);
+
+  React.useEffect(() => {
+    deletingNotificationIdsRef.current = deletingNotificationIds;
+  }, [deletingNotificationIds]);
 
   const refreshNotifications = React.useCallback(async () => {
     const requestId = latestRefreshRequestIdRef.current + 1;
@@ -303,6 +331,85 @@ export function NotificationCenterProvider({
     }
   }, []);
 
+  const deleteNotification = React.useCallback(async (notificationId: string) => {
+    const target = notificationsRef.current.find((item) => item.id === notificationId);
+    if (!target) {
+      return;
+    }
+
+    if (deletingNotificationIdsRef.current.has(notificationId)) {
+      return;
+    }
+
+    setDeletingNotificationIds((current) => {
+      const next = new Set(current);
+      next.add(notificationId);
+      deletingNotificationIdsRef.current = next;
+      return next;
+    });
+
+    try {
+      const result = await deleteNotificationAction({ notificationId });
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
+
+      const remainingNotifications = notificationsRef.current.filter(
+        (item) => item.id !== notificationId,
+      );
+      const nextSelectedNotificationId =
+        selectedNotificationId === notificationId
+          ? remainingNotifications[0]?.id ?? null
+          : selectedNotificationId;
+
+      setNotifications(remainingNotifications);
+      notificationsRef.current = remainingNotifications;
+      setUnreadCount((current) =>
+        target.isRead ? current : Math.max(current - 1, 0),
+      );
+      setSelectedNotificationId(nextSelectedNotificationId);
+      knownNotificationIdsRef.current.delete(notificationId);
+
+      toast.success("通知已删除。");
+    } finally {
+      setDeletingNotificationIds((current) => {
+        const next = new Set(current);
+        next.delete(notificationId);
+        deletingNotificationIdsRef.current = next;
+        return next;
+      });
+    }
+  }, [selectedNotificationId]);
+
+  const deleteAllNotifications = React.useCallback(async () => {
+    if (isDeletingAll) {
+      return;
+    }
+
+    setIsDeletingAll(true);
+
+    try {
+      const result = await deleteAllNotificationsAction();
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
+
+      setNotifications([]);
+      notificationsRef.current = [];
+      setUnreadCount(0);
+      setSelectedNotificationId(null);
+      knownNotificationIdsRef.current = new Set();
+      setDeletingNotificationIds(new Set());
+      deletingNotificationIdsRef.current = new Set();
+
+      toast.success(result.message);
+    } finally {
+      setIsDeletingAll(false);
+    }
+  }, [isDeletingAll]);
+
   const openNotificationCenter = React.useCallback((notificationId?: string | null) => {
     if (notificationId) {
       setSelectedNotificationId(notificationId);
@@ -347,6 +454,10 @@ export function NotificationCenterProvider({
       closeNotificationCenter,
       refreshNotifications,
       markAsRead,
+      deleteNotification,
+      deleteAllNotifications,
+      isDeletingAll,
+      deletingNotificationIds,
       setSelectedNotificationId,
     }),
     [
@@ -362,6 +473,10 @@ export function NotificationCenterProvider({
       closeNotificationCenter,
       refreshNotifications,
       markAsRead,
+      deleteNotification,
+      deleteAllNotifications,
+      isDeletingAll,
+      deletingNotificationIds,
     ],
   );
 
@@ -389,6 +504,10 @@ function NotificationCenterDrawer() {
     setSelectedNotificationId,
     isLoading,
     markAsRead,
+    deleteNotification,
+    deleteAllNotifications,
+    isDeletingAll,
+    deletingNotificationIds,
   } = useNotificationCenterValue();
 
   const [emotionSnapshot, setEmotionSnapshot] = React.useState<EmotionSnapshot | null>(
@@ -396,6 +515,7 @@ function NotificationCenterDrawer() {
   );
   const [emotionLoading, setEmotionLoading] = React.useState(false);
   const [emotionError, setEmotionError] = React.useState<string | null>(null);
+  const [confirmDeleteAllOpen, setConfirmDeleteAllOpen] = React.useState(false);
 
   const denseText = preferences.elderlyMode ? "text-base" : "text-sm";
   const panelContrast = preferences.highContrast ? "ring-1 ring-border" : "";
@@ -469,8 +589,9 @@ function NotificationCenterDrawer() {
   );
 
   return (
-    <Drawer open={open} onOpenChange={handleDrawerOpenChange} direction="bottom">
-      <DrawerContent className={cn("w-full")}>
+    <>
+      <Drawer open={open} onOpenChange={handleDrawerOpenChange} direction="bottom">
+        <DrawerContent className={cn("w-full")}>
         <DrawerHeader className="pb-0">
           <DrawerTitle
             className={cn(
@@ -503,9 +624,26 @@ function NotificationCenterDrawer() {
               >
                 最近通知
               </div>
-              {isLoading ? (
-                <Loader2Icon className="animate-spin text-muted-foreground" />
-              ) : null}
+              <div className="flex items-center gap-2">
+                {notifications.length > 0 ? (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={isDeletingAll}
+                    onClick={() => setConfirmDeleteAllOpen(true)}
+                  >
+                    {isDeletingAll ? (
+                      <Loader2Icon className="animate-spin" data-icon="inline-start" />
+                    ) : (
+                      <Trash2Icon data-icon="inline-start" />
+                    )}
+                    删除全部
+                  </Button>
+                ) : null}
+                {isLoading ? (
+                  <Loader2Icon className="animate-spin text-muted-foreground" />
+                ) : null}
+              </div>
             </div>
             <Separator />
             <ScrollArea className="min-h-0 flex-1">
@@ -517,11 +655,11 @@ function NotificationCenterDrawer() {
                 ) : (
                   notifications.map((notification) => {
                     const Icon = getNotificationIcon(notification.type);
+                    const isDeleting = deletingNotificationIds.has(notification.id);
 
                     return (
-                      <button
+                      <div
                         key={notification.id}
-                        type="button"
                         className={cn(
                           "flex w-full flex-col gap-3 rounded-2xl border p-4 text-left transition-colors hover:bg-muted/60",
                           notificationTone(notification.type),
@@ -529,36 +667,57 @@ function NotificationCenterDrawer() {
                             "ring-2 ring-primary/30",
                           !notification.isRead && "shadow-sm",
                           preferences.highContrast && "border-foreground/20",
+                          isDeleting && "opacity-70",
                         )}
-                        onClick={() => {
-                          setSelectedNotificationId(notification.id);
-                          if (!notification.isRead) {
-                            void markAsRead(notification.id);
-                          }
-                        }}
                       >
                         <div className="flex items-start gap-3">
-                          <div className="rounded-xl bg-background/80 p-2 text-primary">
-                            <Icon />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <p className={cn("truncate font-medium", denseText)}>
-                                {notification.title}
-                              </p>
-                              {!notification.isRead ? (
-                                <Badge variant="secondary">未读</Badge>
-                              ) : null}
+                          <button
+                            type="button"
+                            className="flex min-w-0 flex-1 items-start gap-3 text-left"
+                            onClick={() => {
+                              setSelectedNotificationId(notification.id);
+                              if (!notification.isRead) {
+                                void markAsRead(notification.id);
+                              }
+                            }}
+                          >
+                            <div className="rounded-xl bg-background/80 p-2 text-primary">
+                              <Icon />
                             </div>
-                            <p
-                              className={cn(
-                                "mt-1 line-clamp-2 text-muted-foreground",
-                                denseText,
-                              )}
-                            >
-                              {notification.summary}
-                            </p>
-                          </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className={cn("truncate font-medium", denseText)}>
+                                  {notification.title}
+                                </p>
+                                {!notification.isRead ? (
+                                  <Badge variant="secondary">未读</Badge>
+                                ) : null}
+                              </div>
+                              <p
+                                className={cn(
+                                  "mt-1 line-clamp-2 text-muted-foreground",
+                                  denseText,
+                                )}
+                              >
+                                {notification.summary}
+                              </p>
+                            </div>
+                          </button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="shrink-0"
+                            disabled={isDeleting || isDeletingAll}
+                            onClick={() => void deleteNotification(notification.id)}
+                          >
+                            {isDeleting ? (
+                              <Loader2Icon className="animate-spin" />
+                            ) : (
+                              <Trash2Icon />
+                            )}
+                            <span className="sr-only">删除通知</span>
+                          </Button>
                         </div>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>{formatTime(notification.createdAt)}</span>
@@ -568,7 +727,7 @@ function NotificationCenterDrawer() {
                               "系统"}
                           </span>
                         </div>
-                      </button>
+                      </div>
                     );
                   })
                 )}
@@ -640,8 +799,8 @@ function NotificationCenterDrawer() {
                       {selectedNotification.summary}
                     </p>
 
-                    {!selectedNotification.isRead ? (
-                      <div className="mt-4">
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {!selectedNotification.isRead ? (
                         <Button
                           variant="outline"
                           size="sm"
@@ -650,8 +809,27 @@ function NotificationCenterDrawer() {
                           <CheckCheckIcon data-icon="inline-start" />
                           标记为已读
                         </Button>
-                      </div>
-                    ) : null}
+                      ) : null}
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={
+                          deletingNotificationIds.has(selectedNotification.id) ||
+                          isDeletingAll
+                        }
+                        onClick={() => void deleteNotification(selectedNotification.id)}
+                      >
+                        {deletingNotificationIds.has(selectedNotification.id) ? (
+                          <Loader2Icon
+                            className="animate-spin"
+                            data-icon="inline-start"
+                          />
+                        ) : (
+                          <Trash2Icon data-icon="inline-start" />
+                        )}
+                        删除通知
+                      </Button>
+                    </div>
                   </div>
 
                   {selectedNotification.type === "EMOTION_STATUS_UPDATE" ? (
@@ -759,7 +937,49 @@ function NotificationCenterDrawer() {
             </ScrollArea>
           </div>
         </div>
-      </DrawerContent>
-    </Drawer>
+        </DrawerContent>
+      </Drawer>
+
+      <AlertDialog
+        open={confirmDeleteAllOpen}
+        onOpenChange={setConfirmDeleteAllOpen}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认删除全部通知？</AlertDialogTitle>
+            <AlertDialogDescription>
+              删除后将无法恢复，当前通知列表中的全部消息都会被清空。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              variant="outline"
+              disabled={isDeletingAll}
+            >
+              取消
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={isDeletingAll}
+              onClick={async (event) => {
+                event.preventDefault();
+                await deleteAllNotifications();
+                setConfirmDeleteAllOpen(false);
+              }}
+            >
+              {isDeletingAll ? (
+                <Loader2Icon
+                  className="animate-spin"
+                  data-icon="inline-start"
+                />
+              ) : (
+                <Trash2Icon data-icon="inline-start" />
+              )}
+              确认删除
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
