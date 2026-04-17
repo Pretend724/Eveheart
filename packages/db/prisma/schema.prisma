@@ -132,6 +132,8 @@ model UserPreferences {
     // ── Chat Experience ───────────────────────────────────────────────────────
     /// The name Eveheart uses to refer to itself in conversation.
     personaName   String  @default("Eveheart")
+    /// Selected digital avatar identifier for the AI avatar experience.
+    avatarIdentifier String?
     /// BCP-47 language tag for AI reply language. "auto" follows user input.
     replyLanguage String  @default("zh-CN")
     /// Whether the text-to-speech voice feature is enabled.

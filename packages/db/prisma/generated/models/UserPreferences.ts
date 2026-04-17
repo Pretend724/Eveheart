@@ -32,6 +32,7 @@ export type UserPreferencesMinAggregateOutputType = {
   aiApiKey: string | null
   aiBaseUrl: string | null
   personaName: string | null
+  avatarIdentifier: string | null
   replyLanguage: string | null
   voiceEnabled: boolean | null
   voiceSpeed: string | null
@@ -56,6 +57,7 @@ export type UserPreferencesMaxAggregateOutputType = {
   aiApiKey: string | null
   aiBaseUrl: string | null
   personaName: string | null
+  avatarIdentifier: string | null
   replyLanguage: string | null
   voiceEnabled: boolean | null
   voiceSpeed: string | null
@@ -80,6 +82,7 @@ export type UserPreferencesCountAggregateOutputType = {
   aiApiKey: number
   aiBaseUrl: number
   personaName: number
+  avatarIdentifier: number
   replyLanguage: number
   voiceEnabled: number
   voiceSpeed: number
@@ -106,6 +109,7 @@ export type UserPreferencesMinAggregateInputType = {
   aiApiKey?: true
   aiBaseUrl?: true
   personaName?: true
+  avatarIdentifier?: true
   replyLanguage?: true
   voiceEnabled?: true
   voiceSpeed?: true
@@ -130,6 +134,7 @@ export type UserPreferencesMaxAggregateInputType = {
   aiApiKey?: true
   aiBaseUrl?: true
   personaName?: true
+  avatarIdentifier?: true
   replyLanguage?: true
   voiceEnabled?: true
   voiceSpeed?: true
@@ -154,6 +159,7 @@ export type UserPreferencesCountAggregateInputType = {
   aiApiKey?: true
   aiBaseUrl?: true
   personaName?: true
+  avatarIdentifier?: true
   replyLanguage?: true
   voiceEnabled?: true
   voiceSpeed?: true
@@ -251,6 +257,7 @@ export type UserPreferencesGroupByOutputType = {
   aiApiKey: string | null
   aiBaseUrl: string | null
   personaName: string
+  avatarIdentifier: string | null
   replyLanguage: string
   voiceEnabled: boolean
   voiceSpeed: string
@@ -296,6 +303,7 @@ export type UserPreferencesWhereInput = {
   aiApiKey?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   aiBaseUrl?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   personaName?: Prisma.StringFilter<"UserPreferences"> | string
+  avatarIdentifier?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   replyLanguage?: Prisma.StringFilter<"UserPreferences"> | string
   voiceEnabled?: Prisma.BoolFilter<"UserPreferences"> | boolean
   voiceSpeed?: Prisma.StringFilter<"UserPreferences"> | string
@@ -321,6 +329,7 @@ export type UserPreferencesOrderByWithRelationInput = {
   aiApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   aiBaseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   personaName?: Prisma.SortOrder
+  avatarIdentifier?: Prisma.SortOrderInput | Prisma.SortOrder
   replyLanguage?: Prisma.SortOrder
   voiceEnabled?: Prisma.SortOrder
   voiceSpeed?: Prisma.SortOrder
@@ -349,6 +358,7 @@ export type UserPreferencesWhereUniqueInput = Prisma.AtLeast<{
   aiApiKey?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   aiBaseUrl?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   personaName?: Prisma.StringFilter<"UserPreferences"> | string
+  avatarIdentifier?: Prisma.StringNullableFilter<"UserPreferences"> | string | null
   replyLanguage?: Prisma.StringFilter<"UserPreferences"> | string
   voiceEnabled?: Prisma.BoolFilter<"UserPreferences"> | boolean
   voiceSpeed?: Prisma.StringFilter<"UserPreferences"> | string
@@ -374,6 +384,7 @@ export type UserPreferencesOrderByWithAggregationInput = {
   aiApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   aiBaseUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   personaName?: Prisma.SortOrder
+  avatarIdentifier?: Prisma.SortOrderInput | Prisma.SortOrder
   replyLanguage?: Prisma.SortOrder
   voiceEnabled?: Prisma.SortOrder
   voiceSpeed?: Prisma.SortOrder
@@ -404,6 +415,7 @@ export type UserPreferencesScalarWhereWithAggregatesInput = {
   aiApiKey?: Prisma.StringNullableWithAggregatesFilter<"UserPreferences"> | string | null
   aiBaseUrl?: Prisma.StringNullableWithAggregatesFilter<"UserPreferences"> | string | null
   personaName?: Prisma.StringWithAggregatesFilter<"UserPreferences"> | string
+  avatarIdentifier?: Prisma.StringNullableWithAggregatesFilter<"UserPreferences"> | string | null
   replyLanguage?: Prisma.StringWithAggregatesFilter<"UserPreferences"> | string
   voiceEnabled?: Prisma.BoolWithAggregatesFilter<"UserPreferences"> | boolean
   voiceSpeed?: Prisma.StringWithAggregatesFilter<"UserPreferences"> | string
@@ -427,6 +439,7 @@ export type UserPreferencesCreateInput = {
   aiApiKey?: string | null
   aiBaseUrl?: string | null
   personaName?: string
+  avatarIdentifier?: string | null
   replyLanguage?: string
   voiceEnabled?: boolean
   voiceSpeed?: string
@@ -452,6 +465,7 @@ export type UserPreferencesUncheckedCreateInput = {
   aiApiKey?: string | null
   aiBaseUrl?: string | null
   personaName?: string
+  avatarIdentifier?: string | null
   replyLanguage?: string
   voiceEnabled?: boolean
   voiceSpeed?: string
@@ -475,6 +489,7 @@ export type UserPreferencesUpdateInput = {
   aiApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personaName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replyLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   voiceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   voiceSpeed?: Prisma.StringFieldUpdateOperationsInput | string
@@ -500,6 +515,7 @@ export type UserPreferencesUncheckedUpdateInput = {
   aiApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personaName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replyLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   voiceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   voiceSpeed?: Prisma.StringFieldUpdateOperationsInput | string
@@ -524,6 +540,7 @@ export type UserPreferencesCreateManyInput = {
   aiApiKey?: string | null
   aiBaseUrl?: string | null
   personaName?: string
+  avatarIdentifier?: string | null
   replyLanguage?: string
   voiceEnabled?: boolean
   voiceSpeed?: string
@@ -547,6 +564,7 @@ export type UserPreferencesUpdateManyMutationInput = {
   aiApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personaName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replyLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   voiceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   voiceSpeed?: Prisma.StringFieldUpdateOperationsInput | string
@@ -571,6 +589,7 @@ export type UserPreferencesUncheckedUpdateManyInput = {
   aiApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personaName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replyLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   voiceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   voiceSpeed?: Prisma.StringFieldUpdateOperationsInput | string
@@ -600,6 +619,7 @@ export type UserPreferencesCountOrderByAggregateInput = {
   aiApiKey?: Prisma.SortOrder
   aiBaseUrl?: Prisma.SortOrder
   personaName?: Prisma.SortOrder
+  avatarIdentifier?: Prisma.SortOrder
   replyLanguage?: Prisma.SortOrder
   voiceEnabled?: Prisma.SortOrder
   voiceSpeed?: Prisma.SortOrder
@@ -624,6 +644,7 @@ export type UserPreferencesMaxOrderByAggregateInput = {
   aiApiKey?: Prisma.SortOrder
   aiBaseUrl?: Prisma.SortOrder
   personaName?: Prisma.SortOrder
+  avatarIdentifier?: Prisma.SortOrder
   replyLanguage?: Prisma.SortOrder
   voiceEnabled?: Prisma.SortOrder
   voiceSpeed?: Prisma.SortOrder
@@ -648,6 +669,7 @@ export type UserPreferencesMinOrderByAggregateInput = {
   aiApiKey?: Prisma.SortOrder
   aiBaseUrl?: Prisma.SortOrder
   personaName?: Prisma.SortOrder
+  avatarIdentifier?: Prisma.SortOrder
   replyLanguage?: Prisma.SortOrder
   voiceEnabled?: Prisma.SortOrder
   voiceSpeed?: Prisma.SortOrder
@@ -707,6 +729,7 @@ export type UserPreferencesCreateWithoutUserInput = {
   aiApiKey?: string | null
   aiBaseUrl?: string | null
   personaName?: string
+  avatarIdentifier?: string | null
   replyLanguage?: string
   voiceEnabled?: boolean
   voiceSpeed?: string
@@ -730,6 +753,7 @@ export type UserPreferencesUncheckedCreateWithoutUserInput = {
   aiApiKey?: string | null
   aiBaseUrl?: string | null
   personaName?: string
+  avatarIdentifier?: string | null
   replyLanguage?: string
   voiceEnabled?: boolean
   voiceSpeed?: string
@@ -769,6 +793,7 @@ export type UserPreferencesUpdateWithoutUserInput = {
   aiApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personaName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replyLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   voiceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   voiceSpeed?: Prisma.StringFieldUpdateOperationsInput | string
@@ -792,6 +817,7 @@ export type UserPreferencesUncheckedUpdateWithoutUserInput = {
   aiApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiBaseUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   personaName?: Prisma.StringFieldUpdateOperationsInput | string
+  avatarIdentifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   replyLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   voiceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   voiceSpeed?: Prisma.StringFieldUpdateOperationsInput | string
@@ -818,6 +844,7 @@ export type UserPreferencesSelect<ExtArgs extends runtime.Types.Extensions.Inter
   aiApiKey?: boolean
   aiBaseUrl?: boolean
   personaName?: boolean
+  avatarIdentifier?: boolean
   replyLanguage?: boolean
   voiceEnabled?: boolean
   voiceSpeed?: boolean
@@ -843,6 +870,7 @@ export type UserPreferencesSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   aiApiKey?: boolean
   aiBaseUrl?: boolean
   personaName?: boolean
+  avatarIdentifier?: boolean
   replyLanguage?: boolean
   voiceEnabled?: boolean
   voiceSpeed?: boolean
@@ -868,6 +896,7 @@ export type UserPreferencesSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   aiApiKey?: boolean
   aiBaseUrl?: boolean
   personaName?: boolean
+  avatarIdentifier?: boolean
   replyLanguage?: boolean
   voiceEnabled?: boolean
   voiceSpeed?: boolean
@@ -893,6 +922,7 @@ export type UserPreferencesSelectScalar = {
   aiApiKey?: boolean
   aiBaseUrl?: boolean
   personaName?: boolean
+  avatarIdentifier?: boolean
   replyLanguage?: boolean
   voiceEnabled?: boolean
   voiceSpeed?: boolean
@@ -909,7 +939,7 @@ export type UserPreferencesSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserPreferencesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "aiProvider" | "aiModel" | "aiApiKey" | "aiBaseUrl" | "personaName" | "replyLanguage" | "voiceEnabled" | "voiceSpeed" | "fontSize" | "elderlyMode" | "highContrast" | "reminderEnabled" | "reminderTime" | "reminderFreq" | "quietHoursEnabled" | "quietHoursStart" | "quietHoursEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["userPreferences"]>
+export type UserPreferencesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "aiProvider" | "aiModel" | "aiApiKey" | "aiBaseUrl" | "personaName" | "avatarIdentifier" | "replyLanguage" | "voiceEnabled" | "voiceSpeed" | "fontSize" | "elderlyMode" | "highContrast" | "reminderEnabled" | "reminderTime" | "reminderFreq" | "quietHoursEnabled" | "quietHoursStart" | "quietHoursEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["userPreferences"]>
 export type UserPreferencesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -949,6 +979,10 @@ export type $UserPreferencesPayload<ExtArgs extends runtime.Types.Extensions.Int
      * The name Eveheart uses to refer to itself in conversation.
      */
     personaName: string
+    /**
+     * Selected digital avatar identifier for the AI avatar experience.
+     */
+    avatarIdentifier: string | null
     /**
      * BCP-47 language tag for AI reply language. "auto" follows user input.
      */
@@ -1430,6 +1464,7 @@ export interface UserPreferencesFieldRefs {
   readonly aiApiKey: Prisma.FieldRef<"UserPreferences", 'String'>
   readonly aiBaseUrl: Prisma.FieldRef<"UserPreferences", 'String'>
   readonly personaName: Prisma.FieldRef<"UserPreferences", 'String'>
+  readonly avatarIdentifier: Prisma.FieldRef<"UserPreferences", 'String'>
   readonly replyLanguage: Prisma.FieldRef<"UserPreferences", 'String'>
   readonly voiceEnabled: Prisma.FieldRef<"UserPreferences", 'Boolean'>
   readonly voiceSpeed: Prisma.FieldRef<"UserPreferences", 'String'>

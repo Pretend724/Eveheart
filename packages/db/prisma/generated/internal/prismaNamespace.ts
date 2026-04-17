@@ -1274,6 +1274,7 @@ export const UserPreferencesScalarFieldEnum = {
   aiApiKey: 'aiApiKey',
   aiBaseUrl: 'aiBaseUrl',
   personaName: 'personaName',
+  avatarIdentifier: 'avatarIdentifier',
   replyLanguage: 'replyLanguage',
   voiceEnabled: 'voiceEnabled',
   voiceSpeed: 'voiceSpeed',
