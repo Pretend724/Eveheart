@@ -370,17 +370,21 @@ export function NotificationCenterProvider({
     }
   }, [isDeletingAll]);
 
-  const openNotificationCenter = React.useCallback((notificationId?: string | null) => {
-    if (notificationId) {
-      setSelectedNotificationId(notificationId);
-    } else {
-      setSelectedNotificationId(
-        (current) => current ?? notificationsRef.current[0]?.id ?? null,
-      );
-    }
+  const openNotificationCenter = React.useCallback(
+    (notificationId?: string | null) => {
+      if (notificationId) {
+        setSelectedNotificationId(notificationId);
+      } else {
+        setSelectedNotificationId(
+          (current) => current ?? notificationsRef.current[0]?.id ?? null,
+        );
+      }
 
-    setOpen(true);
-  }, []);
+      setOpen(true);
+      void refreshNotifications();
+    },
+    [refreshNotifications],
+  );
 
   const closeNotificationCenter = React.useCallback(() => {
     setOpen(false);

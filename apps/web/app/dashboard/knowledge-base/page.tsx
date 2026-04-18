@@ -14,7 +14,7 @@ export default async function KnowledgeBasePage() {
             知识库
           </h3>
           <p className="text-muted-foreground mt-2 text-lg">
-            管理 Eveheart 的心理健康知识库，支持 RAG 向量检索增强对话。
+            管理 Eveheart 的心理健康知识库，支持向量检索增强对话。
           </p>
         </div>
 

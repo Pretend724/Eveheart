@@ -167,10 +167,9 @@ function EmptyState({ onNew }: { onNew: () => void }) {
         <BookOpenIcon className="size-8 text-muted-foreground" />
       </div>
       <div className="space-y-1">
-        <p className="font-semibold text-foreground">还没有知识库</p>
+        <p className="font-semibold text-foreground">心理健康知识库</p>
         <p className="text-sm text-muted-foreground max-w-xs">
-          创建你的第一个心理健康知识库，Eveheart 将通过 RAG
-          检索为对话提供专业支持。
+          系统内置专业心理知识，可自由添加自定义内容，为你的每一次对话提供专业支持
         </p>
       </div>
       <Button onClick={onNew} className="gap-2 mt-2">
