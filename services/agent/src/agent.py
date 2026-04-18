@@ -40,8 +40,8 @@ async def entrypoint(ctx: agents.JobContext) -> None:
         llm=inference.LLM(model="openai/gpt-5.2-chat-latest"),
         tts=inference.TTS(
             model="cartesia/sonic-3",
-            # voice="a167e0f3-df7e-4d52-a9c3-f949145efdab", #man
-            voice="6eb8965c-e295-47bd-a9e4-3eeebb3abcff", #woman
+            voice="a167e0f3-df7e-4d52-a9c3-f949145efdab", #man
+            # voice="6eb8965c-e295-47bd-a9e4-3eeebb3abcff", #woman
             language="zh",
         ),
         vad=ctx.proc.userdata["vad"],
@@ -67,7 +67,8 @@ async def entrypoint(ctx: agents.JobContext) -> None:
                 #     ),
                 # )
                 avatar = keyframe.AvatarSession(
-                    persona_id="fbf30421-c647-49f8-8440-b748c01201fe",
+                    persona_id="81b834ee-8aaa-4796-861e-5b206f6e1bff", #male
+                    # persona_id="fbf30421-c647-49f8-8440-b748c01201fe", #famale
                 )
                 await avatar.start(session, room=ctx.room)
                 _avatar_started = True

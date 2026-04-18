@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,8 @@ import { cn } from "@/lib/utils";
 export type ConversationRecord = {
   /** ChatSession.id */
   id: string;
+  /** Navigation target for the conversation */
+  href?: string;
   /** Session title (may be auto-generated or user-set) */
   title: string;
   /** When the conversation started */
@@ -186,11 +189,19 @@ export const conversationColumns: ColumnDef<ConversationRecord>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="会话标题" />
     ),
-    cell: ({ row }) => (
-      <span className="font-medium text-sm line-clamp-1 max-w-[180px]">
-        {row.getValue("title")}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const title = row.getValue("title") as string;
+      const href = row.original.href ?? "#";
+
+      return (
+        <Link
+          href={href}
+          className="block max-w-[180px] text-sm font-medium line-clamp-1 hover:text-primary hover:underline"
+        >
+          {title}
+        </Link>
+      );
+    },
   },
 
   // ── Created At ──────────────────────────────────────────────────────────────
