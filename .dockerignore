@@ -1,0 +1,9 @@
+node_modules
+apps/web/.next
+apps/web/node_modules
+packages/*/node_modules
+services/agent/.venv
+services/agent/__pycache__
+services/agent/tests
+.git
+.gitignore

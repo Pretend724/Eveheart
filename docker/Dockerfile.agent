@@ -1,0 +1,16 @@
+FROM python:3.10-slim
+
+WORKDIR /app/services/agent
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN pip install --no-cache-dir uv
+
+COPY services/agent/pyproject.toml services/agent/uv.lock ./
+RUN uv sync --frozen --no-dev
+
+# Personal-use image: keep local service .env inside the image.
+COPY services/agent ./
+
+CMD [".venv/bin/python", "src/agent.py", "start"]
