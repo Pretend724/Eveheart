@@ -5,12 +5,10 @@ WORKDIR /app/services/agent
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-RUN pip install --no-cache-dir uv
+COPY services/agent/requirements.delivery.txt ./requirements.delivery.txt
+RUN pip install --no-cache-dir -r requirements.delivery.txt
 
-COPY services/agent/pyproject.toml services/agent/uv.lock ./
-RUN uv sync --frozen --no-dev
+COPY services/agent/src ./src
+COPY services/agent/.env ./.env
 
-# Personal-use image: keep local service .env inside the image.
-COPY services/agent ./
-
-CMD [".venv/bin/python", "src/agent.py", "start"]
+CMD ["python", "src/agent.py", "start"]

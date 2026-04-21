@@ -11,8 +11,11 @@ COPY packages/rag-db/package.json ./packages/rag-db/package.json
 
 RUN pnpm install --frozen-lockfile
 
-# Personal-use image: keep local .env files inside the image.
-COPY . .
+COPY .env ./.env
+COPY apps/web ./apps/web
+COPY packages/db ./packages/db
+COPY packages/rag-db ./packages/rag-db
+COPY docker/start-web.sh ./docker/start-web.sh
 
 RUN pnpm --filter @eveheart/db db:generate
 RUN pnpm --filter @eveheart/web build
