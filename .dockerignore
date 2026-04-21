@@ -5,5 +5,14 @@ packages/*/node_modules
 services/agent/.venv
 services/agent/__pycache__
 services/agent/tests
+services/agent/submission
+services/agent/models
+services/agent/test.wav
+services/agent/test_funasr.py
+services/agent/uv.lock
+.turbo
+exchange
+docker/dist
+docker/postgres
 .git
 .gitignore
