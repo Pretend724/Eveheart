@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     container_name: eveheart-postgres
     ports:
       - "5432:5432"
@@ -9,38 +9,9 @@ services:
       POSTGRES_PASSWORD: dev
       POSTGRES_DB: app
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U dev -d app"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  web:
-    image: eveheart-web:delivery
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.web
-    container_name: eveheart-web
-    ports:
-      - "3000:3000"
-    environment:
-      DATABASE_URL: postgresql://dev:dev@postgres:5432/app
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-
-  agent:
-    image: eveheart-agent:delivery
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile.agent
-    container_name: eveheart-agent
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-
-volumes:
-  postgres_data:

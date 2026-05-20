@@ -20,8 +20,9 @@
     "build": "pnpm --filter @eveheart/web build",
     "start": "pnpm --filter @eveheart/web start",
     "lint": "pnpm --filter @eveheart/web lint",
-    "db:generate": "pnpm --filter @eveheart/db db:generate",
-    "db:push": "pnpm --filter @eveheart/db db:push",
+    "db:generate": "node packages/db/scripts/schema-workflow.cjs generate",
+    "db:push": "node packages/db/scripts/schema-workflow.cjs push",
+    "db:deploy": "node packages/db/scripts/schema-workflow.cjs deploy",
     "db:migrate": "pnpm --filter @eveheart/db db:migrate",
     "db:studio": "pnpm --filter @eveheart/db db:studio"
   },

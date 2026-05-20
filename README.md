@@ -203,6 +203,10 @@ docker compose -f docker/docker-compose.yml up -d --build
 ```
 
 > [!WARNING]
-> 当前 compose 文件使用标准 `postgres:16` 镜像。RAG 功能依赖 pgvector，请改用带 pgvector 的数据库镜像，或在应用 RAG schema 前手动安装并启用扩展。
+> 当前 compose 已改用 `pgvector/pgvector:pg16`。`vector` 扩展需要在目标数据库里单独启用一次，数据目录持久化后会保留扩展状态。
 
+### One-shot deploy
 
+```bash
+pnpm db:deploy
+```
