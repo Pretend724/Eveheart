@@ -1,3 +1,0 @@
-sed -i '225,228s/^    //' model/TransformerVAE.py
-sed -i '226s/.*/    reaction_3dmm = torch.zeros((speaker_video.size(0), self.window_size, self.output_3dmm_dim), device=speaker_video.device)/' model/TransformerVAE.py
-sed -i '227s/.*/    reaction_emotion = torch.zeros((speaker_video.size(0), self.window_size, self.output_emotion_dim), device=speaker_video.device)/' model/TransformerVAE.py
