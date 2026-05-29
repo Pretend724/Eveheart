@@ -277,4 +277,9 @@
   - `apps/web/lib/app-config/server.ts`：服务端 AppConfig 加载
   - `apps/web/lib/app-config/styles.ts`：AppConfig 样式生成
   - `apps/web/lib/livekit/sandbox-token-source.ts`：LiveKit sandbox token source
+- 2026-05-29：已将 `apps/web/app/api/chat/route.ts` 拆分为更小的 chat 模块：
+  - `apps/web/lib/chat/model-resolver.ts`：模型 provider 解析
+  - `apps/web/lib/chat/prompt.ts`：系统 prompt 与 RAG prompt 拼接
+  - `apps/web/lib/chat/rag-context.ts`：RAG 检索与消息注入
+  - `apps/web/lib/chat/session-store.ts`：会话校验、偏好读取与消息持久化
 
