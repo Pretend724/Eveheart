@@ -8,7 +8,7 @@ import { AgentSessionProvider } from '@/components/agents-ui/agent-session-provi
 import { StartAudioButton } from '@/components/agents-ui/start-audio-button';
 import { ViewController } from '@/components/dashboard/AI-avatar/view-controller';
 import { useAgentErrors } from '@/hooks/useAgentErrors';
-import { getSandboxTokenSource } from '@/lib/utils';
+import { getSandboxTokenSource } from '@/lib/livekit/sandbox-token-source';
 
 function AppSetup() {
   useAgentErrors();

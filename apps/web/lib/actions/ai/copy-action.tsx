@@ -2,7 +2,7 @@
 import { memo, useCallback } from "react";
 import { MessageAction } from "@/components/ai-elements/message";
 import { CopyIcon } from "lucide-react";
-import { handleCopy } from "@/lib/utils";
+import { handleCopy } from "@/lib/browser/clipboard";
 
 export interface CopyActionProps {
   content: string;

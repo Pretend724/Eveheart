@@ -268,3 +268,13 @@
 - `pnpm lint`：失败，缺少 `eslint.config.js`
 - `uv run python -m unittest discover -s tests`：失败，`my_agent.EveheartAgent` 构造签名与测试不一致
 
+## 整改记录
+
+- 2026-05-29：已将 `apps/web/lib/utils.ts` 拆分为更小的 focused helper 模块：
+  - `apps/web/lib/utils.ts`：仅保留 `cn`
+  - `apps/web/lib/browser/clipboard.ts`：浏览器剪贴板
+  - `apps/web/lib/ai/message-parts.ts`：AI message parts 文本提取
+  - `apps/web/lib/app-config/server.ts`：服务端 AppConfig 加载
+  - `apps/web/lib/app-config/styles.ts`：AppConfig 样式生成
+  - `apps/web/lib/livekit/sandbox-token-source.ts`：LiveKit sandbox token source
+
