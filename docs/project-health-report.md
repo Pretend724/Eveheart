@@ -282,4 +282,10 @@
   - `apps/web/lib/chat/prompt.ts`：系统 prompt 与 RAG prompt 拼接
   - `apps/web/lib/chat/rag-context.ts`：RAG 检索与消息注入
   - `apps/web/lib/chat/session-store.ts`：会话校验、偏好读取与消息持久化
+- 2026-05-30：已将 `apps/web/app/dashboard/setting/preferences-setting/preferences-client.tsx` 拆分为更小的 preferences 模块：
+  - `apps/web/app/dashboard/setting/preferences-setting/preferences-client.tsx`：保留状态编排、连接测试、保存与路由跳转
+  - `apps/web/app/dashboard/setting/preferences-setting/_components/`：AI 服务、数字人形象、对话体验、显示无障碍、提醒与保存条组件
+  - `apps/web/app/dashboard/setting/preferences-setting/_lib/preferences-types.ts`：偏好设置页面类型
+  - `apps/web/app/dashboard/setting/preferences-setting/_lib/preferences-data.tsx`：服务商与数字人静态选项
+  - `apps/web/app/dashboard/setting/preferences-setting/_lib/preferences-state.ts`：初始状态、dirty 判断与保存 payload 转换
 
